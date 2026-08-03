@@ -64,6 +64,9 @@ Fabric with **zero copies** (Fabric reads them live).
 
 1. Open your assigned workspace **`HPB Workshop - <Your Name>`**. On the toolbar click **+ New item**.
 
+   > **Note:** a fresh workspace opens on a **"predesigned task flow"** panel at the top — ignore it. Everything in
+   > this lab starts from the **+ New item** button on the toolbar.
+
    ![Empty workspace with the "+ New item" button on the toolbar.](../docs/images/lab1/lab1-01-workspace-newitem.png)
 
 2. In the panel, search `lakehouse` and click the **Lakehouse** tile.
@@ -79,8 +82,13 @@ Fabric with **zero copies** (Fabric reads them live).
 
    ![The New item panel filtered to the Mirrored Azure Databricks catalog tile.](../docs/images/lab1/lab1-06-newitem-mirror-search.png)
 
-5. In the wizard: keep **Existing connection**, pick the shared workshop connection → **Next** → choose catalog
-   **`hpb_databricks`**, tick the **`gold`** schema → **Next**.
+5. In the wizard, keep **Existing connection** and open the **connection** dropdown. Pick the shared Databricks
+   connection — it's listed by its **workspace URL** (e.g. `https://adb-....azuredatabricks.net`) with your username,
+   **not** a friendly "workshop" name.
+   - **If the dropdown is empty** (first-time use), choose **New connection**, paste the shared **Databricks workspace
+     URL** the facilitator gives you, keep the default auth, and sign in.
+
+   Then **Next** → choose catalog **`hpb_databricks`**, tick the **`gold`** schema → **Next**.
 
    ![The Choose data step with hpb_databricks and the gold schema ticked.](../docs/images/lab1/lab1-09-mirror-choosedata.png)
 
@@ -139,18 +147,15 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 6. **Data Wrangler (Section 1).** After Bronze lands, open `bronze.h365_meal_logs` in **Data Wrangler** (Explorer ⋯ →
    *Open in Data Wrangler*), try **Drop missing values** on `calories` and a type cast, then **Add code to notebook** —
    see how clicks become code. *(Silver does the authoritative cleaning; this is just to experience the tool.)*
-   <!-- screenshot: lab1 Data Wrangler (to capture) -->
 
 7. **Observability (Section 6).** Run the **skewed** then **tuned** cells and compare them in the **Spark jobs** view
    and the **Monitor** hub — one long task vs. many short parallel tasks. Note the **resource-prioritisation** guidance.
-   <!-- screenshot: lab1 Spark UI / Monitor (to capture) -->
 
 8. **Copilot agent mode (Section 7).** Open **Copilot** in the toolbar, switch to **agent mode**, and ask it to profile
    or chart `gold.resident_360`. Watch it plan → generate → run.
-   <!-- screenshot: lab1 Copilot agent (to capture) -->
 
 > **Done when you see:** `bronze.*` (6 tables + `env_air_quality`), `silver.fact_*` (6), and **`gold.resident_360`**
-> (1,500 rows) with an `is_disengaged` split (~30–40% disengaged).
+> (1,500 rows) with an `is_disengaged` split of **roughly 12% disengaged** (about 180 of 1,500 residents flagged `1`).
 
 ---
 
@@ -162,10 +167,17 @@ in Lab 4 — so build it now.
 1. Open the mirror's **SQL analytics endpoint** (or the Lakehouse's) → ribbon **New semantic model** → name it
    **`sm_activity`** → tick **`dim_resident`** and **`daily_activity`** → **Confirm**.
 
+   > ⚠️ Make sure **both** `dim_resident` **and** `daily_activity` show a tick before you click **Confirm** — it's easy
+   > to miss one. If you end up with only one table, add the other later via **Model view → Editing → Edit tables**.
+
    ![The New semantic model dialog with dim_resident and daily_activity ticked.](../docs/images/lab1/lab1-12-new-semantic-model.png)
 
 2. In the **Model view** (switch **Viewing → Editing** if needed) → **Manage relationships → New relationship**:
    `daily_activity(resident_id)` → `dim_resident(resident_id)`, **Many-to-one**, **Single** → **Save**.
+
+   > **Note:** switching to **Editing** on a Direct Lake model shows a one-time *"Converting semantic model…"* message
+   > (~10 sec) — that's expected. Direct Lake also notes that cardinality/cross-filter are **inferred** and may need a
+   > manual check; here it correctly detects **Many-to-one / Single**.
 
    ![The sm_activity model view with the two tables.](../docs/images/lab1/lab1-13-model-relationship.png)
 
@@ -175,13 +187,20 @@ in Lab 4 — so build it now.
 
 Instead of hand-placing visuals, let **Copilot** suggest and build the report pages for you.
 
-1. From **`sm_activity`** → **New report** (or **Create report → Auto-create / with Copilot**).
-2. Open **Copilot** in the report → choose **Suggest content** / *"Generate a report"*. Copilot proposes pages
-   (e.g. *Activity by region*, *Disengagement overview*) and lays out the visuals automatically.
-3. Review the suggested pages, keep what's useful, and **Save** as **`rpt_activity`**.
-   <!-- screenshot: lab1 Copilot report (to capture) -->
+1. In the workspace list (or from the semantic model), open **`sm_activity` → ⋯ (More options) → Create report**.
+   This opens the report editor bound to `sm_activity` (both tables appear in the **Data** pane).
+   > *Tip:* the model view also has a **New report** button, but the **⋯ → Create report** path from the list is the
+   > most reliable.
+2. In the report editor, click **Copilot** in the toolbar → choose **Suggest content for a new report page**. Copilot
+   proposes an outline of pages (e.g. *Resident activity overview*, *Engagement by demographic segment*, *Activity
+   trends over time*, *Sleep and recovery analysis*).
+3. Click **Create** under a page you like — Copilot builds the page and lays out the visuals for you. Repeat for any
+   other pages, then **Save** the report as **`rpt_activity`**.
 
-> **Done when you see:** a multi-page report Copilot built from your semantic model — no manual visual placement.
+   ![Copilot's suggested report pages, built from sm_activity.](../docs/images/lab1/lab1-17-copilot-report.png)
+
+> **Done when you see:** a report Copilot built from your semantic model — no manual visual placement. *(Copilot drafts
+> may briefly show an axis warning on a visual until the fields settle — that's normal.)*
 
 ---
 

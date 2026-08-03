@@ -56,7 +56,7 @@ flowchart LR
 - `assets/PROVISIONING-RUNBOOK.md` — *facilitator only*: how the framework was deployed (`metadatadb`,
   lakehouses, pipelines, dashboard). Read this only if you're setting the framework up.
 
-> **New to Fabric?** Steps are deliberately small; screenshots will illustrate each one.
+> **New to Fabric?** Each step is small and self-contained — just follow them in order.
 
 ---
 

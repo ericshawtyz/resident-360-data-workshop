@@ -44,7 +44,7 @@ flowchart LR
 - `notebooks/generate_ontology.ipynb` — reads your data and prints the ontology **blueprint**.
 - `assets/data_agent_questions.md` — the agent instructions + question bank.
 
-> **New to Fabric?** Steps are deliberately small; screenshots will illustrate each one.
+> **New to Fabric?** Each step is small and self-contained — just follow them in order.
 
 ---
 

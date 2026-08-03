@@ -130,19 +130,29 @@ Everything is live — future runs can point straight at it (no re-provisioning 
 - `assets/audit-hook-cell.py` ships with `SQL_SERVER`/`SQL_DB` as **placeholders** — the facilitator fills
   them from the private record before Lab 2 (see that file's "Facilitator preflight" section).
 
-**Two facilitator preflight steps remain (UI-only — can't be done headless):**
+**Full replica deployed (22 workspace items).** Beyond the SQL DB + 3 lakehouses, the following were deployed
+via API to make the workspace faithfully match the original framework workspace:
+- **9 framework notebooks** (`etl_constants`, `data_quality`, `elt_parallel`, `common_utils`,
+  `transformation_utils`, `anonymization_utils`, `data_profiling`, `data_validation`, `prep_validation_criteria`)
+  — imported from the framework repo's `elt_framework` / `data_profiling` / `data_validation` modules.
+- **3 pipelines** (`PL_Auditing`, `PL_SendEmailNotification`, `PL_SendTeamsNotification`) — created via the
+  Fabric `dataPipelines` REST API.
+- **Dashboard** (`LakehouseIngestionDashboard` **report + semantic model**) — published via the Power BI
+  Import API.
 
-1. **Publish the dashboard.** The `.pbix`/`.pbit` here are parameterised on **`SQL connection string`** +
-   **`Database name`** with **no baked default** (they prompt on open). In **Power BI Desktop**:
-   open `LakehouseIngestionDashboard.pbix` → when prompted enter **`SQL connection string` = `<SQL_SERVER>`**,
-   **`Database name` = `<SQL_DB>`** (from the private record) → auth = **Microsoft account / Entra** →
-   **Publish** to the `HPB Metadata Framework` workspace.
-   > Use **`LakehouseIngestionDashboard.pbix`** — it matches this **Ingestion-Only** deploy
-   > (`ingest_control` + `ingest_audit`). The **multi-page `.pbit`** additionally needs
-   > `enrich_*` / `serve_*` / `transformation_config` tables (full-medallion metastore) which this
-   > Ingestion-Only deployment does **not** create — only use it if you also run the full metastore.
-2. **Pipelines are optional.** The 5 `PL_*.zip` (in the private `hpb-fabric-workshop-facilitator/framework-pipelines/`)
-   are ARM-template exports hard-wired to the **old demo-tenant** SQL linked service (a legacy
-   `…database.windows.net;metadatadb admin` connection) and the notification ones fail on MCAP anyway.
-   Option C (audit-hook + seeded rows) delivers the observability/traceability story **without** them.
-   Import + rewire via the Fabric UI only if you want live config-driven ingestion.
+**Known post-deploy fix-ups (tracked in backlog — connections point at the dead old server):**
+1. **2 dynamic-ingestion pipelines** (`PL_DynamicIngestionPipelineFullLoad_SQL`, `…IncrmLoad_SQL`) would **not**
+   convert via REST (Copy activities carry embedded dataset/connection refs). Import via the UI:
+   **New → Data pipeline → Import from pipeline template** (zips in the private
+   `hpb-fabric-workshop-facilitator/framework-pipelines/`), then rewire connections.
+2. **Pipeline connections.** The 3 API-created pipelines reference the legacy linked service
+   `…database.windows.net;metadatadb admin` + a connection GUID that doesn't exist here → they **error on run**
+   until rewired to the new `metadatadb` (notifications also fail on MCAP). Expected.
+3. **Dashboard semantic-model rebind.** The published semantic model still carries the **old** metadatadb
+   connection baked into the `.pbix`. Rebind it to the new `metadatadb`: workspace → the `LakehouseIngestionDashboard`
+   **semantic model** → **Settings → Parameters** (set `SQL connection string` = `<SQL_SERVER>`,
+   `Database name` = `<SQL_DB>` from the private record) → **Data source credentials** → sign in with **Entra/OAuth2**.
+   Until then the report shows no data.
+
+> Option C (audit-hook + seeded rows) already delivers the observability/traceability story for the workshop
+> **without** the pipelines running — the fix-ups above only matter for a live end-to-end ingestion demo.
