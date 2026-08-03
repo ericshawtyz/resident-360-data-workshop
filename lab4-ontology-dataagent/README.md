@@ -1,0 +1,145 @@
+[← Workshop home](../README.md)
+
+# Lab 4 · Just Ask
+## Ontology + data agent — semantic model vs. ontology
+
+**⏱ 45 min**  ·  **🎯 Focus:** #1 Data lineage (capstone)
+
+### The story
+HPB programme designers want to ask plain-English questions across Rahim's unified view — and get answers that join
+domains a flat model can't. You'll **generate an ontology from your data** (a notebook does the modelling), wire a
+**data agent** to it, and prove it beats a semantic-model-only agent on relationship-aware questions.
+
+### You'll build
+- An **ontology** (`resident_ontology`) — its blueprint **generated from your `gold`/`silver` data** by a notebook.
+- A **semantic-model** data agent (baseline) and an **ontology** data agent.
+- A side-by-side **comparison** on a multi-hop question, plus **end-to-end lineage**.
+
+### Where this fits
+
+```mermaid
+flowchart LR
+  subgraph LH["Lakehouse · lh_resident360 ✓ Lab 1"]
+    GLD["gold.resident_360"]
+    SLV["silver.fact_*"]
+  end
+  NB["Notebook · generate_ontology"]
+  SM["Semantic model · sm_activity ✓ Lab 1"]
+  ONT["Ontology · resident_ontology"]
+  AG1["Agent A · semantic-model source"]
+  AG2["Agent B · ontology source"]
+  GLD --> NB --> ONT
+  SLV --> NB
+  SM --> AG1
+  ONT --> AG2
+  classDef item fill:#cce5ff,stroke:#0066cc,stroke-width:2px,color:#003366;
+  class ONT,AG1,AG2 item;
+  classDef done fill:#eeeeee,stroke:#999999,color:#333333;
+  class GLD,SLV,SM done;
+```
+
+**Builds on:** the medallion + `sm_activity` from Lab 1. This is the governed, conversational capstone.
+
+### Files
+- `notebooks/generate_ontology.ipynb` — reads your data and prints the ontology **blueprint**.
+- `assets/data_agent_questions.md` — the agent instructions + question bank.
+
+> **New to Fabric?** Steps are deliberately small; screenshots will illustrate each one.
+
+---
+
+### Task 1 — Generate the ontology blueprint from your data
+
+1. Import **`generate_ontology.ipynb`** (workspace **Import → Notebook → From this computer**) and open it.
+2. Attach the **`lh_resident360`** Lakehouse (Explorer → **Add data items → From OneLake catalog** → the Lakehouse).
+3. Click **Run all**.
+4. Read Section 1's output — the **entities** it found (Resident, Region, Event, Programme, Challenge) with their keys and instance counts.
+5. Read Section 2's output — the **relationships** it found (e.g. Resident —livesIn→ Region), with the exact key columns.
+6. Scroll to Section 3 — the **blueprint** (two tables: entities and relationships). **Keep this on screen** for Task 2.
+
+> **Done when you see:** a printed blueprint listing the entities (Timestamp = None) and the relationships with their mapping tables and `origin → target` keys.
+
+---
+
+### Task 2 — Create the ontology and apply the blueprint
+
+You're not designing anything — just applying the spec the notebook generated.
+
+1. Workspace → **+ New item** → search **Ontology** → click **Ontology (preview)** → name it **`resident_ontology`** → **Create**.
+2. If a welcome dialog appears, tick **Don't show again** and close it.
+3. **Add the entities.** For each row in the blueprint's *entities* table:
+   1. Ribbon → **Add entity type** → name it (e.g. **Resident**).
+   2. **Configure entity type → Add properties from data → Add data binding → Lakehouse table** → pick the blueprint's **binding** table.
+   3. Set the **key** to the blueprint's key column.
+   4. In **Timeseries data**, set **Timestamp = None**.
+   5. **Save**.
+
+   > ⚠️ **Timestamp = None** for every entity — the bound tables have date columns, so the editor asks for a timestamp; leaving one set triggers a "non-timeseries binding required" error and blocks Save.
+   > ⚠️ Bind **Lakehouse tables only** (the picker also offers Eventhouse).
+
+4. **Add the relationships.** For each row in the blueprint's *relationships* table:
+   1. Ribbon → **Add relationship** → set **name**, **origin**, **target** → **Create**.
+   2. Click the new **edge** on the canvas → **Browse available sources** → pick the blueprint's **mapping table**.
+   3. Map the **origin key** and the **target key** exactly as the blueprint shows.
+   4. **Verify both `Matched <Entity>` dropdowns** show the intended columns, then **Save**.
+
+> **Done when you see:** the entity nodes joined by the named edges on the canvas (the editor auto-saves — no publish).
+
+---
+
+### Task 3 — Build the baseline agent (semantic-model source)
+
+1. Workspace → **+ New item → Data agent** → name **`Resident360 SM Agent`** → **Create**.
+2. Toolbar → **Add data → Data source** → pick **`sm_activity`** → **Add**.
+3. In the Explorer, tick **`daily_activity`** and **`dim_resident`**.
+4. Toolbar → **Agent instructions** → paste the instructions from `assets/data_agent_questions.md`.
+
+---
+
+### Task 4 — Build the ontology agent
+
+1. Workspace → **+ New item → Data agent** → name **`Resident360 Ontology Agent`** → **Create**.
+2. Toolbar → **Add data → Data source** → pick **`resident_ontology`** → **Add** (added whole — no tables to tick).
+3. Toolbar → **Agent instructions** → paste the same instructions from `assets/data_agent_questions.md`.
+
+---
+
+### Task 5 — Prove the ontology wins
+
+1. Ask **both** agents the same multi-hop question:
+
+   > *"For residents who attended events held in hazy-air regions, how many are disengaged — and which regions are those?"*
+
+2. Read the **SM agent's** answer: it only has activity data, so it can't join events + air quality — it declines or answers narrowly.
+3. Read the **Ontology agent's** answer: it traverses **Resident → attended → Event → heldIn → Region (`region_is_hazy`)** and answers cleanly, grouped by region.
+4. Try 2–3 more questions from the bank and **generate a visual** for each.
+
+> **Note:** a multi-hop ontology answer takes ~60–90 sec (plan → query the graph → chart). It reports by group, never by individual `resident_id`.
+
+---
+
+### Task 6 — End-to-end lineage
+
+1. In the workspace, switch to **Lineage view**.
+2. Trace one artifact back through the graph — from an agent/report to the semantic model, to `gold.resident_360`, to `silver`/`bronze`, to the mirrored Databricks tables. *(Read the actual graph on screen — it's your authoritative lineage.)*
+3. Right-click a mirrored table → **Impact analysis** ("if this changes, what breaks?").
+4. **Endorse** a semantic model: **⋯ (More options) → Settings → Endorsement and discovery → Promoted → Apply**.
+
+---
+
+### ✅ Checkpoint
+- [ ] Ran the generator notebook → got the blueprint
+- [ ] `resident_ontology` built from the blueprint (entities + relationships)
+- [ ] Two agents built (semantic-model and ontology)
+- [ ] Ontology agent answers a multi-hop question the SM agent can't
+- [ ] Lineage traced; a model endorsed
+
+### 🟡 Challenge (optional)
+- Extend to the **Programme** and **Challenge** entities + their relationships (already in the generated blueprint) and re-ask a programmes/challenges question.
+- Add **row-level security** on a semantic model (**Manage roles → New**, filter `dim_resident[region] = "East"`, **View as**) and confirm the agent respects it.
+- Publish the ontology agent to **Teams / M365 Copilot**.
+
+---
+
+### Next up
+**Wrap-up & next steps**

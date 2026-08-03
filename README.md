@@ -20,15 +20,13 @@ experience better for a real resident, and each layer builds on the one before.
 > real time, and let HPB ask questions about residents like him.
 
 ```
-Lab 0  Base Camp             → the ground it all stands on
-Lab 1  One Resident, One View → unified foundation
-Lab 2  See the Whole Person   → holistic, context-aware
-Lab 3  Fresh Every Morning    → current & trustworthy
-Lab 4  Never Drops a Step     → reliable & complete at national scale
-Lab 5  Nudges That Land       → proactive, personalised, real-time
-Lab 6  Just Ask               → explainable, conversational, governed
+Lab 0  Base Camp                 → the ground it all stands on
+Lab 1  Build the Resident 360    → unify the estate + transform + observe at scale
+Lab 2  Metadata-Driven Lakehouse → governed, observable, traceable by design
+Lab 3  Nudges That Land          → proactive, personalised, real-time (ML)
+Lab 4  Just Ask                  → explainable, conversational, ontology-powered
 ```
-**The arc in six words:** *Unify → Understand → Refresh → Harden → Personalise → Converse.*
+**The arc in four words:** *Unify → Govern → Personalise → Converse.*
 
 ---
 
@@ -53,7 +51,7 @@ flowchart LR
       SLV["Silver<br/>clean · conform · CDC"]
       GLD["Gold<br/>resident_360"]
     end
-    PIPE["Data Factory pipeline<br/>DQ gate · daily schedule"]
+    GOV["Metadata-driven framework<br/>config · DQ · audit · observability"]
     SM["Direct Lake<br/>semantic models"]
     RPT["Power BI report"]
     ML["Data Science<br/>MLflow · 3 models"]
@@ -67,8 +65,9 @@ flowchart LR
   API --> BRZ
   MIR --> GLD
   BRZ --> SLV --> GLD
-  PIPE -. orchestrates .-> SLV
-  PIPE -. orchestrates .-> GLD
+  BRZ -. audit .-> GOV
+  SLV -. audit .-> GOV
+  GLD -. audit .-> GOV
   MIR --> SM
   GLD --> SM --> RPT
   GLD --> ML --> EP
@@ -87,29 +86,30 @@ shared across Databricks and the Fabric uploads so every join works.*
 
 ---
 
-### Agenda (10:00 – 17:00, 1-hour lunch)
+### Agenda (10:00 – 17:30, 1-hour lunch)
 
-| Time | Lab | What the resident gets | Technical focus | HPB topic |
-|------|-----|------------------------|-----------------|-----------|
-| 10:00–10:15 | **Lab 0 · Base Camp** | (foundation) | Sign in to Fabric + shared Databricks, download the kit | prerequisites |
-| 10:15–11:20 | **Lab 1 · One Resident, One View** | His data in one place + a talking agent | Workspace/Lakehouse, **Mirror** the estate (zero-copy), semantic model, report, **basic data agent** | #1 lineage (intro) |
-| 11:20–12:05 | **Lab 2 · See the Whole Person** | Beyond steps — diet, events, programmes, rewards, environment | Ingest & harmonise uploads + API → Bronze | #5 DE features |
-| 12:05–13:05 | 🍱 **Lunch** | | | |
-| 13:05–13:55 | **Lab 3 · Fresh Every Morning** | Up-to-date, correct insights daily | Silver→Gold, pipeline + conditional triage, schedule | #2 orchestration, #5 |
-| 13:55–14:40 | **Lab 4 · Never Drops a Step** | Reliable & complete at scale | Spark UI, resource prioritisation, monitoring dashboard, error logging, backfill | #3, #4, #6 |
-| 14:40–14:50 | ☕ **Break** | | | |
-| 14:50–15:35 | **Lab 5 · Nudges That Land** | A timely, personalised nudge | **3-model ML pipeline + tuning + MLflow** → real-time endpoint | ML |
-| 15:35–16:20 | **Lab 6 · Just Ask** | Better programmes, trustworthy answers | 3 semantic models → **3-entity ontology** (extend to 5 in the challenge) → data agent + lineage | #1 lineage (capstone) |
-| 16:20–16:50 | **Metadata-driven framework** | — | — | — |
-| 16:50–17:00 | Wrap-up & next steps | | | |
+| Time | Duration | Session |
+|------|----------|---------|
+| 10:00–10:15 | 15 min | Arrival & settle |
+| 10:15–10:55 | 40 min | **Microsoft Fabric & Databricks — Better Together** |
+| 10:55–11:30 | 35 min | Workshop logistics & environment check |
+| 11:30–12:30 | 60 min | 🍱 Early lunch |
+| 12:30–14:00 | 90 min | **Lab 1 · Build the Resident 360** — medallion end-to-end (mirror + ingest + Bronze→Silver→Gold in one Lakehouse), Data Wrangler, Copilot, semantic model + Copilot-built report; Spark UI, resource prioritisation & monitoring woven in |
+| 14:00–14:10 | 10 min | ☕ Break |
+| 14:10–14:40 | 30 min | **Metadata-Driven Lakehouse — Concepts & Architecture** |
+| 14:40–15:40 | 60 min | **Lab 2 · Metadata-Driven Lakehouse** — governed, observable, traceable transforms + DQ over the medallion |
+| 15:40–16:25 | 45 min | **Lab 3 · Nudges That Land** — 3-model ML pipeline + tuning + MLflow → real-time endpoint |
+| 16:25–16:35 | 10 min | ☕ Break |
+| 16:35–17:20 | 45 min | **Lab 4 · Just Ask** — notebook-generated ontology → data agent; semantic-model vs ontology comparison |
+| 17:20–17:30 | 10 min | Wrap-up & next steps |
 
-### How the six HPB focus areas are covered
-1. **Data lineage** (Databricks → Power BI): Lab 1 (intro) + Lab 6 (end-to-end capstone)
-2. **Batch orchestration with conditional triage**: Lab 3
-3. **Spark UI & cluster monitoring**: Lab 4 (+ Spark Monitoring KQL dashboard)
-4. **Concurrent ETL + ad-hoc, resource prioritisation**: Lab 4 (custom pool / Autoscale Billing for Spark)
-5. **Common DE features** (schema evolution, CDC, upsert, time travel, Spark config): Labs 2 & 3
-6. **Debugging** (error logging, notifications, repair runs, backfill): Lab 4
+### How the HPB focus areas are covered
+1. **Data lineage** (Databricks → Power BI): Lab 1 (intro) + Lab 4 (end-to-end capstone)
+2. **Batch orchestration with conditional triage**: Lab 1 (in-notebook DQ gate) + Lab 2 (metadata-driven, config-driven orchestration & scheduling)
+3. **Spark UI & cluster monitoring**: Lab 1 (woven into the transformation runs)
+4. **Concurrent ETL + ad-hoc, resource prioritisation**: Lab 1 (custom pool / Autoscale Billing for Spark)
+5. **Common DE features** (schema evolution, CDC, upsert, time travel, Spark config): Lab 1
+6. **Data quality & traceability** (DQ rules, run observability, lineage of transforms): Lab 2 (metadata-driven framework)
 
 ---
 
@@ -117,13 +117,11 @@ shared across Databricks and the Fabric uploads so every join works.*
 
 | Folder | Lab | What's inside |
 |--------|-----|---------------|
-| [`lab0-prerequisites/`](lab0-prerequisites/README.md) | **Base Camp** | Accounts, tenant settings, login + download |
-| [`lab1-connect-databricks/`](lab1-connect-databricks/README.md) | **One Resident, One View** | Mirror steps (the Databricks estate is pre-seeded by the facilitator) |
-| [`lab2-ingest-harmonise/`](lab2-ingest-harmonise/README.md) | **See the Whole Person** | `data/` (upload files) · `notebooks/` (Bronze + API ingest) |
-| [`lab3-transform-orchestrate/`](lab3-transform-orchestrate/README.md) | **Fresh Every Morning** | `notebooks/` (Silver, Gold, DQ gate) · pipeline steps |
-| [`lab4-monitor-debug/`](lab4-monitor-debug/README.md) | **Never Drops a Step** | `notebooks/` (heavy job, error logging, backfill) |
-| [`lab5-datascience-automl/`](lab5-datascience-automl/README.md) | **Nudges That Land** | `notebooks/` (train + tune models, call endpoint) |
-| [`lab6-ontology-dataagent/`](lab6-ontology-dataagent/README.md) | **Just Ask** | `assets/` (semantic-model plan, ontology plan, agent questions) |
+| [`lab0-prerequisites/`](lab0-prerequisites/README.md) | **Base Camp** | Accounts, login + download |
+| [`lab1-build-resident360/`](lab1-build-resident360/README.md) | **Build the Resident 360** | `data/` (upload files) · `notebooks/` (one end-to-end medallion notebook) — mirror, ingest, Bronze→Silver→Gold, Data Wrangler, Copilot, semantic model + report |
+| [`lab2-metadata-lakehouse/`](lab2-metadata-lakehouse/README.md) | **Metadata-Driven Lakehouse** | Metadata-driven framework integrated onto your medallion — config, orchestration, DQ, observability & traceability |
+| [`lab3-datascience-ml/`](lab3-datascience-ml/README.md) | **Nudges That Land** | `notebooks/` (train + tune models, call endpoint) |
+| [`lab4-ontology-dataagent/`](lab4-ontology-dataagent/README.md) | **Just Ask** | `notebooks/` (generate the ontology from data) · `assets/` (agent questions) |
 
 **Everything runs in the browser** — all code executes inside Fabric or Databricks notebooks. Start at
 **[Lab 0 · Base Camp](lab0-prerequisites/README.md)**.
@@ -135,8 +133,8 @@ shared across Databricks and the Fabric uploads so every join works.*
 > **Before any notebook:** attach the **`lh_resident360`** Lakehouse, and name your mirror exactly
 > **`hpb_databricks_mirror`** so the kit notebooks work unchanged.
 > **Challenges are optional.** **Fell behind?** Materialize the pre-built `resident_360_prebuilt` from the shared
-> estate into your own `gold` schema (one Spark cell — see Lab 3); the facilitator calls re-sync points at the
-> end of Lab 3 and Lab 5.
+> estate into your own `gold` schema (one Spark cell — see Lab 1); the facilitator calls a re-sync point at the
+> end of Lab 1.
 
 ---
 

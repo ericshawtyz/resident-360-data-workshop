@@ -62,4 +62,4 @@ Open the top-level **`README.md`** (in your browser on GitHub, or locally in VS 
 ---
 
 ### Next up
-**[Lab 1 · One Resident, One View](../lab1-connect-databricks/README.md)**
+**[Lab 1 · Build the Resident 360](../lab1-build-resident360/README.md)**

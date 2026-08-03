@@ -27,3 +27,8 @@ desktop.ini
 *.env
 .env
 secrets.*
+
+# Private facilitator records (live tenant coordinates) — keep out of the public repo
+*deployment-record*
+*.private.md
+*.secret.*
