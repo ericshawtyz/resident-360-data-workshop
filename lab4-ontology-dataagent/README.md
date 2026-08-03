@@ -87,6 +87,10 @@ You're not designing anything — just applying the spec the notebook generated.
 
 > **Done when you see:** the entity nodes joined by the named edges on the canvas (the editor auto-saves — no publish).
 
+![resident_ontology graph — Resident joined to Event (attended) and Region (livesIn), with Event → Region (heldIn)](../docs/images/lab4/lab4-02-ontology-graph.png)
+
+> **Editor tips (preview):** bind **Lakehouse tables only**; set **Timestamp = None** for every entity — and set it **last**, right before Save, because selecting the entity key can reset the Timestamp field back to empty. Each entity: *Configure entity type → Add properties from data → Add data binding → Lakehouse table → pick table → Define entity type key → Timestamp = None → Save.* Each relationship: *Add relationship → name/origin/target → Create → View Relationship Type details → Browse available sources → pick the mapping table → map both keys → Save.*
+
 ---
 
 ### Task 3 — Build the baseline agent (semantic-model source)
@@ -95,6 +99,7 @@ You're not designing anything — just applying the spec the notebook generated.
 2. Toolbar → **Add data → Data source** → pick **`sm_activity`** → **Add**.
 3. In the Explorer, tick **`daily_activity`** and **`dim_resident`**.
 4. Toolbar → **Agent instructions** → paste the instructions from `assets/data_agent_questions.md`.
+   *(The instructions box is a **Markdown preview** — click it once to switch to edit mode, then paste.)*
 
 ---
 
@@ -113,10 +118,18 @@ You're not designing anything — just applying the spec the notebook generated.
    > *"For residents who attended events held in hazy-air regions, how many are disengaged — and which regions are those?"*
 
 2. Read the **SM agent's** answer: it only has activity data, so it can't join events + air quality — it declines or answers narrowly.
+
+![Semantic-model agent declines — "unable to retrieve… a limitation in event-level or haze data connection in the current dataset"](../docs/images/lab4/lab4-04-sm-answer.png)
+
 3. Read the **Ontology agent's** answer: it traverses **Resident → attended → Event → heldIn → Region (`region_is_hazy`)** and answers cleanly, grouped by region.
+
+![Ontology agent traverses Resident → Event → Region and answers the multi-hop question the flat agent could not](../docs/images/lab4/lab4-03-ontology-answer.png)
+
 4. Try 2–3 more questions from the bank and **generate a visual** for each.
 
 > **Note:** a multi-hop ontology answer takes ~60–90 sec (plan → query the graph → chart). It reports by group, never by individual `resident_id`.
+
+> ⚠️ **Facilitator note — pick a Q1 that returns data.** The `is_disengaged` flag is defined as *low steps **AND no events attended** AND a dropped programme*, so "**disengaged** residents who **attended** events" is an empty set — an agent will correctly answer *"no data."* For the headline win to land, ask the multi-hop **without** the disengaged filter, e.g. *"For residents who attended events in hazy-air regions, how many attended per region — and which regions are hazy?"* (still traverses Resident → attended → Event → heldIn → Region). The **contrast still holds**: the SM agent can't answer either phrasing (no event/haze data); the ontology agent can.
 
 ---
 
