@@ -57,6 +57,8 @@ flowchart LR
 5. Read Section 2's output — the **relationships** it found (e.g. Resident —livesIn→ Region), with the exact key columns.
 6. Scroll to Section 3 — the **blueprint** (two tables: entities and relationships). **Keep this on screen** for Task 2.
 
+![Generated ontology blueprint — the entities table (Resident, Region, Event, Programme, Challenge with keys, Lakehouse bindings, Timestamp = None) and the relationships table (livesIn, attended, heldIn, enrolledIn, participatesIn) with origin → target keys](../docs/images/lab4/lab4-01-blueprint.png)
+
 > **Done when you see:** a printed blueprint listing the entities (Timestamp = None) and the relationships with their mapping tables and `origin → target` keys.
 
 ---
