@@ -21,10 +21,15 @@ own transform runs surface in the governance dashboard.
 
 ### You'll do
 
-- Register your Lab 1 tables in the framework's **control** table.
+- Read the framework's **control** table from your Lab 1 notebook to see how loads are config-driven.
 - Add **one audit-hook cell** to your Lab 1 notebook so each run reports into `metadatadb`.
+- Read the **audit** trail to see your own load on the record.
 - Open the **Lakehouse Ingestion Dashboard** and read the observability + traceability story for **your** load.
-- Inspect the **control** and **audit** tables to see the config-driven pattern.
+
+> **Why from the notebook?** The framework workspace is shared with you **read-only**, so its `metadatadb`
+> query editor is disabled for participants. Instead you'll read `metadatadb` straight from **your own**
+> Lab 1 notebook using a tiny helper — it runs with **your** identity, which has read access to the tables.
+> This is also closer to how a real pipeline talks to the control store.
 
 ### Where this fits
 
@@ -52,9 +57,17 @@ flowchart LR
 
 ### Files
 
-- `assets/audit-hook-cell.py` — the cell you paste at the end of your Lab 1 notebook.
+- `assets/metadatadb-read-cell.py` — a small helper cell that lets you read `metadatadb` from your notebook
+  (defines `q("SELECT ...")`). You paste this in **Task 1**.
+- `assets/audit-hook-cell.py` — the cell you paste at the end of your Lab 1 notebook to report your load
+  into `metadatadb`. You paste this in **Task 2**.
 - `assets/PROVISIONING-RUNBOOK.md` — *facilitator only*: how the framework was deployed (`metadatadb`,
   lakehouses, pipelines, dashboard). Read this only if you're setting the framework up.
+
+> **Facilitator preflight (before the room starts):** deploy/verify the framework, share the
+> `HPB Metadata Framework` workspace as **Viewer** with participants, grant them `SELECT` + `EXECUTE` on the
+> `mtd` schema, and fill `SQL_SERVER` / `SQL_DB` into both asset cells. Full steps and the live values are in
+> `assets/PROVISIONING-RUNBOOK.md` and the private facilitator record.
 
 > **New to Fabric?** Each step is small and self-contained — just follow them in order.
 
@@ -62,19 +75,26 @@ flowchart LR
 
 ### Task 1 — See the framework's brain: the control table
 
-The framework is driven by a config table — no hard-coded pipelines.
+The framework is driven by a config table — no hard-coded pipelines. You'll read it from **your own**
+Lab 1 notebook.
 
-1. In the browser, open the shared **`HPB Metadata Framework`** workspace (the facilitator will share the link).
-2. Open **`metadatadb`** (the Fabric **SQL Database**).
-3. In its query editor, run:
+1. Go to **your** workspace and open your **Lab 1 medallion notebook** (`resident360_medallion`).
+2. **Add a new cell** (anywhere after the first setup cell). Open `assets/metadatadb-read-cell.py`, copy its
+   full contents, and paste them in.
+3. Check the two values at the top — `SQL_SERVER` and `SQL_DB` — match the facilitator's `metadatadb`
+   (they're usually pre-filled on the kit you were handed; if not, the facilitator will give you the two values).
+4. **Run that cell.** You should see `✅ metadatadb reader ready`.
+5. **Add another new cell** and run this read:
 
-   ```sql
+   ```python
+   q("""
    SELECT source_schema_name, source_table_name, load_type, target_object, enable_flag
    FROM mtd.ingest_control
-   ORDER BY source_schema_name, source_table_name;
+   ORDER BY source_schema_name, source_table_name
+   """)
    ```
 
-4. Notice the rows describe **your** medallion tables — `bronze.h365_*`, `silver.fact_*`, `gold.resident_360` —
+6. Notice the rows describe **your** medallion tables — `bronze.h365_*`, `silver.fact_*`, `gold.resident_360` —
    each with its **load type** (Full / Incr) and **target**. This config *is* the framework: add a row, and
    a new table is governed. No code change.
 
@@ -90,7 +110,7 @@ Now make your transform **report** each run into the framework.
 2. **Add a new cell at the very end.**
 3. Open `assets/audit-hook-cell.py`, copy its full contents, and paste them into that cell.
 4. Confirm the `SQL_SERVER` and `SQL_DB` values at the top match the facilitator's `metadatadb`
-   (your facilitator will give you the two values, or they'll already be filled in on the kit you were handed).
+   — these are the **same two values** you used for the reader cell in Task 1.
 5. **Run just that cell.**
 
 > **Done when you see:** `✅ Audit rows written to metadatadb …`. (If you see a ⚠️ skip message, tell the
@@ -100,13 +120,15 @@ Now make your transform **report** each run into the framework.
 
 ### Task 3 — Read the audit trail
 
-1. Back in **`metadatadb`**, run:
+1. Back in your notebook, **add a new cell** and run this read (uses the same `q()` helper from Task 1):
 
-   ```sql
+   ```python
+   q("""
    SELECT item_name, load_type, rows_written, status,
           copy_duration AS seconds, event_end_time
    FROM mtd.ingest_audit
-   ORDER BY event_end_time DESC;
+   ORDER BY event_end_time DESC
+   """)
    ```
 
 2. Each row is one **traceable** load event: which table, how many rows, success/failure, how long, and when.
@@ -122,6 +144,8 @@ Now make your transform **report** each run into the framework.
 2. Read the tiles: **rows / data ingested by layer**, **success vs. failure**, **load duration**, **runs over time**.
 3. Filter to **`gold.resident_360`** (or your run) — the dashboard now tells the operational story of the
    medallion **you** built: what moved, whether it was consistent, and how long it took.
+
+![Lakehouse Ingestion Dashboard — datasets ingested, success rate, rows written, and a per-layer audit grid showing your bronze/silver/gold loads](../docs/images/lab2/lab2-01-dashboard.png)
 
 > **Done when you see:** your `gold.resident_360` load reflected in the dashboard tiles.
 

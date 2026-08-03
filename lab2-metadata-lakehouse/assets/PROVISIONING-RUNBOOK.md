@@ -149,10 +149,56 @@ via API to make the workspace faithfully match the original framework workspace:
    `…database.windows.net;metadatadb admin` + a connection GUID that doesn't exist here → they **error on run**
    until rewired to the new `metadatadb` (notifications also fail on MCAP). Expected.
 3. **Dashboard semantic-model rebind.** The published semantic model still carries the **old** metadatadb
-   connection baked into the `.pbix`. Rebind it to the new `metadatadb`: workspace → the `LakehouseIngestionDashboard`
+   connection baked into the `.pbix`. Rebind it to the new `metadatadb`.
+
+   **Option A — UI (quick):** workspace → the `LakehouseIngestionDashboard`
    **semantic model** → **Settings → Parameters** (set `SQL connection string` = `<SQL_SERVER>`,
-   `Database name` = `<SQL_DB>` from the private record) → **Data source credentials** → sign in with **Entra/OAuth2**.
-   Until then the report shows no data.
+   `Database name` = `<SQL_DB>` from the private record) → **Data source credentials** → sign in with **Entra/OAuth2**,
+   then refresh. Until then the report shows no data.
+
+   **Option B — scripted (validated, repeatable):** run the following against the Power BI REST API
+   (Azure CLI signed in as a workspace admin). Replace `<WS>`, `<DATASET>`, `<SQL_SERVER>`, `<SQL_DB>`:
+
+   ```powershell
+   $ws="<WS>"; $dataset="<DATASET>"
+   $server="<SQL_SERVER>"; $db="<SQL_DB>"
+   $pbi = az account get-access-token --resource "https://analysis.windows.net/powerbi/api" --query accessToken -o tsv
+   $sql = az account get-access-token --resource "https://database.windows.net/" --query accessToken -o tsv
+   $h = @{ Authorization="Bearer $pbi"; "Content-Type"="application/json" }
+   # 1) repoint parameters
+   $body = @{ updateDetails=@(@{name="SQL connection string";newValue=$server},@{name="Database name";newValue=$db}) } | ConvertTo-Json -Depth 5
+   Invoke-RestMethod -Method Post -Uri "https://api.powerbi.com/v1.0/myorg/groups/$ws/datasets/$dataset/Default.UpdateParameters" -Headers $h -Body $body
+   # 2) take over + read the datasource's gateway/datasource id
+   Invoke-RestMethod -Method Post -Uri "https://api.powerbi.com/v1.0/myorg/groups/$ws/datasets/$dataset/Default.TakeOver" -Headers $h
+   $ds = (Invoke-RestMethod -Uri "https://api.powerbi.com/v1.0/myorg/groups/$ws/datasets/$dataset/datasources" -Headers $h).value[0]
+   # 3) bind Entra/OAuth2 credentials with the SQL access token
+   $cred = '{"credentialData":[{"name":"accessToken","value":"' + $sql + '"}]}'
+   $cbody = @{ credentialDetails=@{ credentialType="OAuth2"; credentials=$cred; encryptedConnection="Encrypted"; encryptionAlgorithm="None"; privacyLevel="Organizational" } } | ConvertTo-Json -Depth 6
+   Invoke-RestMethod -Method Patch -Uri "https://api.powerbi.com/v1.0/myorg/gateways/$($ds.gatewayId)/datasources/$($ds.datasourceId)" -Headers $h -Body $cbody
+   # 4) refresh
+   Invoke-RestMethod -Method Post -Uri "https://api.powerbi.com/v1.0/myorg/groups/$ws/datasets/$dataset/refreshes" -Headers $h -Body (@{notifyOption="NoNotification"} | ConvertTo-Json)
+   ```
+
+   Verify with `GET …/datasets/$dataset/refreshes?$top=1` → `status: Completed`. (The OAuth2 token expires ~1h,
+   but the bound credential persists for scheduled refreshes.)
+
+4. **Participant read access (read-mostly Lab 2).** Workspace **Viewers cannot use the `metadatadb` portal
+   query editor** (New Query is disabled), so Lab 2 reads `metadatadb` from the participant's **own Lab 1
+   notebook** via `assets/metadatadb-read-cell.py`. Preflight per participant: **share the framework workspace
+   as Viewer**, then grant DB-level read on the `mtd` schema so the notebook token can query:
+
+   ```sql
+   -- run in metadatadb (as an admin) for each participant UPN
+   CREATE USER [rahim.tester@contoso.onmicrosoft.com] FROM EXTERNAL PROVIDER;
+   GRANT SELECT ON SCHEMA::mtd TO [rahim.tester@contoso.onmicrosoft.com];
+   GRANT EXECUTE ON SCHEMA::mtd TO [rahim.tester@contoso.onmicrosoft.com];  -- for the audit-hook SP
+   ```
+
+   Fill `SQL_SERVER` / `SQL_DB` into both `assets/metadatadb-read-cell.py` and `assets/audit-hook-cell.py`.
+
+5. **Rebrand the dashboard title (cosmetic).** The stock report title reads *"Contoso Data Ingestion
+   Dashboard"*. Before the workshop, edit the report → the title text box → rename to an HPB-appropriate
+   label (e.g. *"HPB Lakehouse Ingestion Dashboard"*).
 
 > Option C (audit-hook + seeded rows) already delivers the observability/traceability story for the workshop
 > **without** the pipelines running — the fix-ups above only matter for a live end-to-end ingestion demo.
