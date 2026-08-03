@@ -98,6 +98,8 @@ Lab 1 notebook.
    each with its **load type** (Full / Incr) and **target**. This config *is* the framework: add a row, and
    a new table is governed. No code change.
 
+![Reading the mtd.ingest_control table from the notebook — five control rows mapping your bronze, silver and gold tables to gold.resident_360](../docs/images/lab2/lab2-02-read-control.png)
+
 > **Done when you see:** five control rows naming your bronze / silver / gold tables.
 
 ---
@@ -134,6 +136,8 @@ Now make your transform **report** each run into the framework.
 2. Each row is one **traceable** load event: which table, how many rows, success/failure, how long, and when.
 3. Find the row for **`gold.resident_360`** — that's your unified view's load, now on the record.
 
+![Reading the mtd.ingest_audit table from the notebook — your latest run tops the list with gold.resident_360 at 1500 rows and Success](../docs/images/lab2/lab2-03-read-audit.png)
+
 > **Done when you see:** an audit row for `gold.resident_360` with your row count and `Success`.
 
 ---
@@ -153,11 +157,13 @@ Now make your transform **report** each run into the framework.
 
 ### Task 5 — Trace it end-to-end
 
-1. In the workspace, switch to **Lineage view**.
+1. In the workspace, switch to **Lineage view** (top-right toggle, next to the search box).
 2. Follow the chain: **dashboard → semantic model → `metadatadb`** and, in your own workspace,
    **`gold.resident_360` → silver → bronze → the mirrored Databricks tables**.
 3. This is **traceability**: from a governance tile back to the raw source, and — via the audit table —
    *when* each hop last ran and whether it succeeded.
+
+![Lineage view of the HPB Metadata Framework workspace — the Ingestion Dashboard report and semantic model, metadatadb, and the bronze/silver/gold layer lakehouses](../docs/images/lab2/lab2-04-lineage.png)
 
 > **Done when you see:** the lineage graph linking the dashboard to `metadatadb`, and your medallion back to the mirror.
 

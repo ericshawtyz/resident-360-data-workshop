@@ -20,7 +20,7 @@ SQL_DB     = "<SQL_DB>"       # e.g. metadatadb-<guid>                   (see pr
 
 def q(sql: str):
     """Run a read-only query against the framework's metadatadb and return a DataFrame."""
-    import pyodbc
+    import pyodbc, warnings
     from notebookutils import credentials
 
     # Entra token for the Fabric SQL DB (Fabric SQL is Entra-auth only)
@@ -34,7 +34,9 @@ def q(sql: str):
         attrs_before={SQL_COPT_SS_ACCESS_TOKEN: tokenstruct},
     )
     try:
-        df = pd.read_sql(sql, conn)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # hide pandas' benign "SQLAlchemy only" notice
+            df = pd.read_sql(sql, conn)
     finally:
         conn.close()
     return df
