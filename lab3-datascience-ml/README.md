@@ -58,6 +58,8 @@ flowchart LR
 2. It trains and tunes three families, logging **one MLflow run per configuration** with params + metrics.
 3. Read the printed leaderboard — each run shows AUC / accuracy / F1, and the **winner** (highest AUC) is chosen.
 
+![Training leaderboard — seven runs (LogReg, LightGBM, XGBoost) with AUC/ACC/F1, and the MLflow run list](../docs/images/lab3/lab3-01-leaderboard.png)
+
 > **Done when you see:** a printed leaderboard with a selected winner (typically XGBoost, AUC ≈ 0.99) and the
 > model **`resident360_disengagement`** registered in the workspace.
 
@@ -67,6 +69,8 @@ flowchart LR
 ### Task 2 — Compare runs in the experiment
 1. Workspace → open **Experiments → `resident360-disengagement`**.
 2. Select the runs → **Compare** → sort by **auc**. See how the model families and hyperparameters stack up.
+
+![Experiment run comparison — all runs selected, with accuracy / auc / f1 charts across the model families](../docs/images/lab3/lab3-02-experiment.png)
 
 > **Fun fact:** MLflow is the same open-source tracking you may use in Databricks — it works natively in Fabric,
 > no setup required.
@@ -82,6 +86,8 @@ flowchart LR
    returns HTTP 404 (`EndpointOrResourceNotFound`).
 4. Open **Manage endpoints** → copy the **Model endpoint URL** (ends with `/score`) for Task 4B.
 
+![Model Manage endpoints — Default version set to Version 1 and the model endpoint URL](../docs/images/lab3/lab3-03-endpoint.png)
+
 > **Note:** Registry scoring (Task 4A) works even before the endpoint is activated.
 >
 > **Can't see the `Activate version endpoint` button?** It lives in the **Home** ribbon of the version
@@ -94,6 +100,10 @@ flowchart LR
 2. **Option A — registry:** run the first cell to load the model and score five residents in-notebook.
 3. **Option B — endpoint:** paste the `/score` URL from Task 3 into `ENDPOINT_URL`, run the cell → a live
    `{"predictions":[[1]]}` (1 = at disengagement risk).
+
+![Registry scoring — five residents scored in-notebook, returning [1, 1, 1, 0, 0]](../docs/images/lab3/lab3-04-registry-score.png)
+
+![Real-time endpoint call — HTTP 200 with a live prediction {"predictions":[[1]]}](../docs/images/lab3/lab3-04-endpoint-score.png)
 
 > **No-code alternative:** on the model's version page, ribbon **Preview predictions** → **Autofill** (or
 > type feature values) → **Get predictions** calls the live endpoint and shows the result right in the UI —
