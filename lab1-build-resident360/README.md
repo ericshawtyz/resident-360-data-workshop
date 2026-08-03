@@ -82,25 +82,36 @@ Fabric with **zero copies** (Fabric reads them live).
 
    ![The New item panel filtered to the Mirrored Azure Databricks catalog tile.](../docs/images/lab1/lab1-06-newitem-mirror-search.png)
 
-5. In the wizard, keep **Existing connection** and open the **connection** dropdown. Pick the shared Databricks
-   connection — it's listed by its **workspace URL** (e.g. `https://adb-....azuredatabricks.net`) with your username,
-   **not** a friendly "workshop" name.
-   - **If the dropdown is empty** (first-time use), choose **New connection**, paste the shared **Databricks workspace
-     URL** the facilitator gives you, keep the default auth, and sign in.
+5. In the wizard, the connection dropdown starts **empty** — no connection exists yet, so select **New connection**
+   and fill in the shared Databricks details your facilitator provides:
+   - **Databricks workspace URL** — e.g. `https://adb-....azuredatabricks.net`
+   - **Authentication kind** — keep the default (**OAuth 2.0**); **sign in** with your workshop account when prompted.
 
-   Then **Next** → choose catalog **`hpb_databricks`**, tick the **`gold`** schema → **Next**.
+   Click **Connect** (or **Next**).
+
+   ![The New connection form for the Mirrored Azure Databricks catalog, with the workspace URL and OAuth sign-in.](../docs/images/lab1/lab1-08-mirror-connection.png)
+
+   > If a connection was **already** set up for you, it appears in the dropdown listed by its Databricks **URL**
+   > (`https://adb-....azuredatabricks.net`) — keep **Existing connection** and just pick it.
+
+6. Choose catalog **`hpb_databricks`**, tick the **`gold`** schema → **Next**.
 
    ![The Choose data step with hpb_databricks and the gold schema ticked.](../docs/images/lab1/lab1-09-mirror-choosedata.png)
 
-6. On **Review and create**, change the **Name** to exactly **`hpb_databricks_mirror`** → **Create**.
+7. On **Review and create**, set the **Name** to **`hpb_databricks_mirror`** → **Create**.
 
-   ![The Review step with the name changed to hpb_databricks_mirror.](../docs/images/lab1/lab1-10-mirror-review-name.png)
+   ![The Review step with the name set to hpb_databricks_mirror.](../docs/images/lab1/lab1-10-mirror-review-name.png)
 
-   > ⚠️ The name **must** be `hpb_databricks_mirror` (with the `_mirror` suffix) — the notebook refers to it by this
-   > exact name. If sign-in ever says *"Sign in canceled,"* click **Sign in** again (1–3 tries).
+   > **Note:** the notebook reads the mirror through a variable **`DBX = "hpb_databricks_mirror.gold"`**, set in the
+   > notebook's **Section 0 · Setup** cell (and re-declared in the **Section 4 · Gold** cells). You can name the mirror
+   > whatever you like — but if you use a name **other than** `hpb_databricks_mirror`, update every
+   > `DBX = "...gold"` line to `"<your_mirror_name>.gold"` before you run the notebook. If sign-in ever says
+   > *"Sign in canceled,"* click **Sign in** again (1–3 tries).
 
-7. The `gold` tables sync in 1–3 min. **Verify (zero-copy):** open the mirror → **SQL analytics endpoint** →
-   **New SQL query** → `SELECT COUNT(*) FROM hpb_databricks_mirror.gold.dim_resident;` → expect **1500**.
+8. The `gold` tables sync in 1–3 min. **Verify (zero-copy):** open **`hpb_databricks_mirror`** → its **SQL analytics
+   endpoint** → **New SQL query** → run `SELECT COUNT(*) FROM hpb_databricks_mirror.gold.dim_resident;` → expect **1500**.
+
+   ![A New SQL query on the mirror's SQL analytics endpoint returning 1500 for dim_resident.](../docs/images/lab1/lab1-18-verify-count.png)
 
 > **Note:** don't shortcut the mirror into a `gold`/`silver`/`bronze` schema of `lh_resident360` — a read-only shortcut
 > collides with the writable medallion you build next. The notebook reads the mirror directly instead.
@@ -144,15 +155,33 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 
    ![The medallion notebook after a successful run, tables created.](../docs/images/lab2/lab2-15-notebook-run-complete.png)
 
-6. **Data Wrangler (Section 1).** After Bronze lands, open `bronze.h365_meal_logs` in **Data Wrangler** (Explorer ⋯ →
-   *Open in Data Wrangler*), try **Drop missing values** on `calories` and a type cast, then **Add code to notebook** —
-   see how clicks become code. *(Silver does the authoritative cleaning; this is just to experience the tool.)*
+6. **Data Wrangler (Section 1).** After Bronze lands, get a feel for Fabric's no-code data cleaning:
+   1. In the Explorer, expand **`lh_resident360` → Tables → `bronze`** and hover **`h365_meal_logs`** → **⋯** →
+      **Open in Data Wrangler** (or ribbon **Home → Data Wrangler → bronze.h365_meal_logs**).
+   2. In the left **Operations** panel, choose **Find and replace → Drop missing values**, pick the **`calories`**
+      column, and **Apply** — watch the row count drop and the change appear in the **Cleaning steps** list.
+   3. Try a second operation, e.g. **Transformations → Change column type** on `calories` → **Decimal**.
+   4. Click **Add code to notebook** (top right) — Data Wrangler drops the equivalent PySpark into a new cell so you
+      can see how the clicks became code. *(You don't need to run it — the notebook's Silver step does the
+      authoritative cleaning; this is just to experience the tool.)*
 
-7. **Observability (Section 6).** Run the **skewed** then **tuned** cells and compare them in the **Spark jobs** view
-   and the **Monitor** hub — one long task vs. many short parallel tasks. Note the **resource-prioritisation** guidance.
+7. **Spark UI, monitoring & resource prioritisation (Section 6).** See *how* your jobs ran:
+   1. Run the **skewed** cell, then the **tuned** cell in Section 6.
+   2. Under a running/finished cell, click **… → View Spark job** (or the **Spark jobs** link) to open the **Spark UI**
+      — compare the **skewed** job (one long-running task on a single partition) with the **tuned** job (many short,
+      parallel tasks after Adaptive Query Execution).
+   3. Left nav → **Monitor** hub → open this notebook's run to see duration, status and the Spark detail for each cell.
+   4. Read the **resource-prioritisation** note in the cell (custom pool / Autoscale Billing for Spark) — how a
+      nightly ETL and ad-hoc queries share the capacity.
 
-8. **Copilot agent mode (Section 7).** Open **Copilot** in the toolbar, switch to **agent mode**, and ask it to profile
-   or chart `gold.resident_360`. Watch it plan → generate → run.
+8. **Copilot in the notebook (Section 7).** Experience the AI assistant:
+   1. Click **Copilot** on the notebook toolbar to open the chat panel.
+   2. Ask it a concrete question about your data, for example:
+      - *"Profile `gold.resident_360`: row count, % disengaged, and average steps by region. Add the result as a new cell."*
+      - *"Chart average `mvpa_minutes` by `age_band` from `gold.resident_360`."*
+   3. Watch Copilot **plan → generate a cell → run it**, then review the cell it added.
+
+   ![Copilot in the notebook generating and running a cell over gold.resident_360.](../docs/images/lab1/lab1-21-copilot-agent.png)
 
 > **Done when you see:** `bronze.*` (6 tables + `env_air_quality`), `silver.fact_*` (6), and **`gold.resident_360`**
 > (1,500 rows) with an `is_disengaged` split of **roughly 12% disengaged** (about 180 of 1,500 residents flagged `1`).
@@ -162,24 +191,48 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 ### Task 3 — Semantic model
 
 A **semantic model** is the layer reports and (later) the data agent read from. You'll compare it against an **ontology**
-in Lab 4 — so build it now.
+in Lab 4 — so build it now on the two Databricks-mirror tables.
 
-1. Open the mirror's **SQL analytics endpoint** (or the Lakehouse's) → ribbon **New semantic model** → name it
-   **`sm_activity`** → tick **`dim_resident`** and **`daily_activity`** → **Confirm**.
+#### 3a · Create the model
 
-   > ⚠️ Make sure **both** `dim_resident` **and** `daily_activity` show a tick before you click **Confirm** — it's easy
-   > to miss one. If you end up with only one table, add the other later via **Model view → Editing → Edit tables**.
+1. Open **`hpb_databricks_mirror`** → its **SQL analytics endpoint**. On the **Home** ribbon click **New semantic model**.
 
-   ![The New semantic model dialog with dim_resident and daily_activity ticked.](../docs/images/lab1/lab1-12-new-semantic-model.png)
+   ![The mirror's SQL analytics endpoint with the New semantic model button on the ribbon.](../docs/images/lab1/lab1-11-mirror-tables.png)
 
-2. In the **Model view** (switch **Viewing → Editing** if needed) → **Manage relationships → New relationship**:
-   `daily_activity(resident_id)` → `dim_resident(resident_id)`, **Many-to-one**, **Single** → **Save**.
+2. In the dialog:
+   - **Name** the model **`sm_activity`**.
+   - Leave **Direct Lake on SQL** selected.
+   - Under the **`gold`** folder, tick **`daily_activity`** and **`dim_resident`** (leave the others unticked).
+   - Click **Confirm**.
 
-   > **Note:** switching to **Editing** on a Direct Lake model shows a one-time *"Converting semantic model…"* message
-   > (~10 sec) — that's expected. Direct Lake also notes that cardinality/cross-filter are **inferred** and may need a
-   > manual check; here it correctly detects **Many-to-one / Single**.
+   > ⚠️ Make sure **both** `daily_activity` **and** `dim_resident` show a tick before **Confirm** — it's easy to miss
+   > one. (If you end up with only one, you can add the other later in step 3 via **Edit tables**.)
 
-   ![The sm_activity model view with the two tables.](../docs/images/lab1/lab1-13-model-relationship.png)
+   ![The New semantic model dialog: name sm_activity, daily_activity and dim_resident both ticked.](../docs/images/lab1/lab1-12-new-semantic-model.png)
+
+#### 3b · Add the relationship
+
+3. The model opens in **Model view**. It starts in **Viewing** mode (read-only). Switch to **Editing**:
+   click the **Viewing** button on the ribbon (top-left) → choose **Editing**.
+
+   > **Note:** the first switch to Editing shows a one-time *"Converting semantic model…"* message (~10 sec) — expected.
+
+   ![The Viewing/Editing dropdown on the model-view ribbon, with Editing highlighted.](../docs/images/lab1/lab1-23-switch-editing.png)
+
+4. If only one table is on the canvas, click **Edit tables** on the ribbon and tick the missing one (`daily_activity`
+   or `dim_resident`), then **Confirm**.
+
+5. On the ribbon click **Manage relationships → + New relationship** and set:
+   - **From table:** `daily_activity`, **column** `resident_id`
+   - **To table:** `dim_resident`, **column** `resident_id`
+   - **Cardinality:** **Many to one (\*:1)** · **Cross-filter direction:** **Single** · **Make active:** on
+
+   Click **Save**. *(Direct Lake infers cardinality from row counts and shows a banner saying so — here it correctly
+   detects Many-to-one / Single.)*
+
+6. Close the dialog — the two tables now show the relationship line on the canvas.
+
+   ![The sm_activity model view with the relationship line between daily_activity and dim_resident.](../docs/images/lab1/lab1-13-model-relationship.png)
 
 ---
 
@@ -187,15 +240,19 @@ in Lab 4 — so build it now.
 
 Instead of hand-placing visuals, let **Copilot** suggest and build the report pages for you.
 
-1. In the workspace list (or from the semantic model), open **`sm_activity` → ⋯ (More options) → Create report**.
-   This opens the report editor bound to `sm_activity` (both tables appear in the **Data** pane).
+1. In the workspace list, hover the **`sm_activity`** row → **⋯ (More options)** → **Create report**. This opens the
+   report editor bound to `sm_activity` (both tables appear in the **Data** pane).
    > *Tip:* the model view also has a **New report** button, but the **⋯ → Create report** path from the list is the
    > most reliable.
-2. In the report editor, click **Copilot** in the toolbar → choose **Suggest content for a new report page**. Copilot
-   proposes an outline of pages (e.g. *Resident activity overview*, *Engagement by demographic segment*, *Activity
-   trends over time*, *Sleep and recovery analysis*).
+
+   ![The sm_activity ⋯ menu with Create report.](../docs/images/lab1/lab1-25-create-report-menu.png)
+
+2. In the report editor, click **Copilot** on the toolbar to open the panel, then choose
+   **Suggest content for a new report page**. Copilot proposes an outline of pages (e.g. *Resident activity overview*,
+   *Engagement by demographic segment*, *Activity trends over time*, *Sleep and recovery analysis*).
+
 3. Click **Create** under a page you like — Copilot builds the page and lays out the visuals for you. Repeat for any
-   other pages, then **Save** the report as **`rpt_activity`**.
+   other pages, then press **Ctrl+S** and **Save** the report as **`rpt_activity`**.
 
    ![Copilot's suggested report pages, built from sm_activity.](../docs/images/lab1/lab1-17-copilot-report.png)
 
