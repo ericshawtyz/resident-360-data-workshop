@@ -183,4 +183,4 @@ Now make your transform **report** each run into the framework.
 
 ### Next up
 
-**[Lab 3 · Predict — machine learning on the medallion →](../lab3-datascience-ml/README.md)**
+**[Lab 3 · Nudges That Land →](../lab3-datascience-ml/README.md)**

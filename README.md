@@ -132,7 +132,7 @@ shared across Databricks and the Fabric uploads so every join works.*
 
 > **Before any notebook:** attach the **`lh_resident360`** Lakehouse, and name your mirror exactly
 > **`hpb_databricks_mirror`** so the kit notebooks work unchanged.
-> **Challenges are optional.** **Fell behind?** Materialize the pre-built `resident_360_prebuilt` from the shared
+> **Fell behind?** Materialize the pre-built `resident_360_prebuilt` from the shared
 > estate into your own `gold` schema (one Spark cell — see Lab 1); the facilitator calls a re-sync point at the
 > end of Lab 1.
 
