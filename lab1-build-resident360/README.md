@@ -276,4 +276,4 @@ Instead of hand-placing visuals, let **Copilot** suggest and build the report pa
 ---
 
 ### Next up
-**[Lab 2 · Metadata-Driven Lakehouse](../lab2-metadata-lakehouse/README.md)**
+**[Lab 2 · Govern & Trace](../lab2-metadata-lakehouse/README.md)**

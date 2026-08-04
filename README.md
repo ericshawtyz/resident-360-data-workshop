@@ -22,7 +22,7 @@ experience better for a real resident, and each layer builds on the one before.
 ```
 Lab 0  Base Camp                 → the ground it all stands on
 Lab 1  Build the Resident 360    → unify the estate + transform + observe at scale
-Lab 2  Metadata-Driven Lakehouse → governed, observable, traceable by design
+Lab 2  Govern & Trace            → governed, observable, traceable by design
 Lab 3  Nudges That Land          → proactive, personalised, real-time (ML)
 Lab 4  Just Ask                  → explainable, conversational, ontology-powered
 ```
@@ -97,7 +97,7 @@ shared across Databricks and the Fabric uploads so every join works.*
 | 12:30–14:00 | 90 min | **Lab 1 · Build the Resident 360** — medallion end-to-end (mirror + ingest + Bronze→Silver→Gold in one Lakehouse), Data Wrangler, Copilot, semantic model + Copilot-built report; Spark UI, resource prioritisation & monitoring woven in |
 | 14:00–14:10 | 10 min | ☕ Break |
 | 14:10–14:40 | 30 min | **Metadata-Driven Lakehouse — Concepts & Architecture** |
-| 14:40–15:40 | 60 min | **Lab 2 · Metadata-Driven Lakehouse** — governed, observable, traceable transforms + DQ over the medallion |
+| 14:40–15:40 | 60 min | **Lab 2 · Govern & Trace** — governed, observable, traceable transforms + DQ over the medallion |
 | 15:40–16:25 | 45 min | **Lab 3 · Nudges That Land** — 3-model ML pipeline + tuning + MLflow → real-time endpoint |
 | 16:25–16:35 | 10 min | ☕ Break |
 | 16:35–17:20 | 45 min | **Lab 4 · Just Ask** — notebook-generated ontology → data agent; semantic-model vs ontology comparison |
@@ -119,7 +119,7 @@ shared across Databricks and the Fabric uploads so every join works.*
 |--------|-----|---------------|
 | [`lab0-prerequisites/`](lab0-prerequisites/README.md) | **Base Camp** | Accounts, login + download |
 | [`lab1-build-resident360/`](lab1-build-resident360/README.md) | **Build the Resident 360** | `data/` (upload files) · `notebooks/` (one end-to-end medallion notebook) — mirror, ingest, Bronze→Silver→Gold, Data Wrangler, Copilot, semantic model + report |
-| [`lab2-metadata-lakehouse/`](lab2-metadata-lakehouse/README.md) | **Metadata-Driven Lakehouse** | Metadata-driven framework integrated onto your medallion — config, orchestration, DQ, observability & traceability |
+| [`lab2-metadata-lakehouse/`](lab2-metadata-lakehouse/README.md) | **Govern & Trace** | Metadata-driven framework integrated onto your medallion — config, orchestration, DQ, observability & traceability |
 | [`lab3-datascience-ml/`](lab3-datascience-ml/README.md) | **Nudges That Land** | `notebooks/` (train + tune models, call endpoint) |
 | [`lab4-ontology-dataagent/`](lab4-ontology-dataagent/README.md) | **Just Ask** | `notebooks/` (generate the ontology from data) · `assets/` (agent questions) |
 
