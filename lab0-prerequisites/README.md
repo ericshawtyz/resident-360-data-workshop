@@ -30,15 +30,23 @@ Foundation only — you start building the pipeline in Lab 1.
 ### Task 1 — Sign in to Microsoft Fabric
 1. Open **https://app.fabric.microsoft.com** and sign in with your workshop credentials.
 2. Complete MFA / password reset if prompted.
+
+   ![The Microsoft Fabric home after signing in, with the HPB Workshop workspace under Recommended.](../docs/images/lab0/lab0-1-fabric-home.png)
+
 3. Left nav → **Workspaces** → open your assigned workspace **`HPB Workshop - <Your Name>`** and work there.
+
+   ![The Workspaces flyout listing the assigned HPB Workshop workspace.](../docs/images/lab0/lab0-1-fabric-workspace.png)
 
 > **Note:** First sign-in lands you in **My workspace** with a free licence — that's expected. Do your lab work in your
 > assigned workshop workspace, which sits on the Fabric capacity.
 
 ### Task 2 — Sign in to Azure Databricks
-1. Open the shared Databricks URL.
+1. Open the shared Databricks URL and sign in with **Continue with Microsoft Entra ID** (same workshop account).
 2. Open **Catalog** and confirm the shared estate catalog **`hpb_databricks`** is present (the facilitator
-   seeded it once for the room). You'll mirror it in Lab 1 — you don't run anything here.
+   seeded it once for the room). Expand its **`gold`** schema to see the seeded tables. You'll mirror it in Lab 1 —
+   you don't run anything here.
+
+   ![The Databricks Catalog Explorer showing the hpb_databricks catalog with the gold schema and its seeded tables.](../docs/images/lab0/lab0-2-databricks-catalog.png)
 
 ### Task 3 — Get the kit
 Get the workshop kit from GitHub — either option works:
@@ -49,6 +57,8 @@ Get the workshop kit from GitHub — either option works:
   ```bash
   git clone https://github.com/ericshawtyz/resident-360-data-workshop.git
   ```
+
+![The GitHub repo with the green Code button open, showing Download ZIP and the lab folders.](../docs/images/lab0/lab0-3-github-download-zip.png)
 
 Open the top-level **`README.md`** (in your browser on GitHub, or locally in VS Code) and follow the labs in order.
 
