@@ -122,14 +122,6 @@ flowchart LR
 - [ ] Winner registered as a native flavor
 - [ ] Real-time endpoint returns a live prediction
 
-### 🟡 Challenge (optional) — log a feature-importance plot
-1. After training, read `best['model'].feature_importances_` (or the LR coefficients) into a DataFrame keyed by `FEATURES`.
-2. Plot a horizontal bar chart of the top 10 features with matplotlib.
-3. Log it to the run: `mlflow.log_figure(fig, "feature_importance.png")`.
-4. Open the run in the **`resident360-disengagement`** experiment and confirm the artifact.
-
-**Other ideas:** add a fourth model or a wider hyperparameter grid; or score a hold-out set and record precision/recall at your chosen threshold.
-
 ---
 
 ### Next up

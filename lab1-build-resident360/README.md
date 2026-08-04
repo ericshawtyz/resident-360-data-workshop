@@ -108,8 +108,14 @@ Fabric with **zero copies** (Fabric reads them live).
    > `DBX = "...gold"` line to `"<your_mirror_name>.gold"` before you run the notebook. If sign-in ever says
    > *"Sign in canceled,"* click **Sign in** again (1–3 tries).
 
-8. The `gold` tables sync in 1–3 min. **Verify (zero-copy):** open **`hpb_databricks_mirror`** → its **SQL analytics
-   endpoint** → **New SQL query** → run `SELECT COUNT(*) FROM hpb_databricks_mirror.gold.dim_resident;` → expect **1500**.
+8. The `gold` tables sync in 1–3 min. **Verify (zero-copy):** open **`hpb_databricks_mirror`**, then switch to its
+   **SQL analytics endpoint**. There are two ways to get there:
+   - Inside the open mirror, click the **Databricks** dropdown (top-right) → **SQL analytics endpoint**, **or**
+   - Click the green **View SQL endpoint** button in the centre of the mirror's page.
+
+   ![The open mirror with the Databricks dropdown showing the "SQL analytics endpoint" option and the "View SQL endpoint" button.](../docs/images/lab1/lab1-1-sql-endpoint-switch.png)
+
+   Then **New SQL query** → run `SELECT COUNT(*) FROM hpb_databricks_mirror.gold.dim_resident;` → expect **1500**.
 
    ![A New SQL query on the mirror's SQL analytics endpoint returning 1500 for dim_resident.](../docs/images/lab1/lab1-18-verify-count.png)
 
@@ -129,9 +135,11 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
    ![The ⋯ menu on the Files node with New subfolder.](../docs/images/lab2/lab2-02-files-menu.png)
 
 2. Hover **`landing`** → **⋯** → **Upload → Upload files** → select **all seven files** from the kit's `data/` folder →
-   **Upload**. Confirm the folder shows *"Files 7"*.
+   **Upload**. Watch each file reach a green **Completed** tick, then confirm the folder shows *"Files 7"*.
 
-   ![The landing folder with all seven uploaded files.](../docs/images/lab2/lab2-08-landing-files.png)
+   ![The Upload files panel with all seven files showing Completed.](../docs/images/lab1/lab1-2a-upload-complete.png)
+
+   ![The landing folder listing all seven uploaded files (Files 7).](../docs/images/lab1/lab1-2a-landing-7files.png)
 
 #### 2b · Import & attach the notebook
 
@@ -148,12 +156,17 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
    > ⚠️ The picker lists `lh_resident360` more than once. Pick the **Lakehouse** — it's the one that can read
    > `Files/landing/` and write tables. The SQL endpoint can't write, so the run would fail.
 
+   Once attached, the Explorer shows **`lh_resident360`** and the notebook is ready to **Run all**.
+
+   ![The medallion notebook open with lh_resident360 attached in the Explorer and Run all on the toolbar.](../docs/images/lab1/lab1-2b-notebook-attached.png)
+
 #### 2c · Run it — and try Data Wrangler, observability & Copilot
 
 5. Read each section's markdown, then **Run all** (first run starts a Spark session, ~1–3 min). Watch the layers
-   appear under **Tables**: `bronze.*` → `silver.fact_*` → `gold.resident_360`.
+   appear under **Tables**: `bronze.*` → `silver.fact_*` → `gold.resident_360`. The full run is ~15–20 min on a
+   shared capacity.
 
-   ![The medallion notebook after a successful run, tables created.](../docs/images/lab2/lab2-15-notebook-run-complete.png)
+   ![The medallion notebook running all cells after the Spark session starts.](../docs/images/lab1/lab1-2c-run-all-started.png)
 
 6. **Data Wrangler (Section 1).** After Bronze lands, get a feel for Fabric's no-code data cleaning:
    1. In the Explorer, expand **`lh_resident360` → Tables → `bronze`** and hover **`h365_meal_logs`** → **⋯** →
@@ -165,6 +178,8 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
       can see how the clicks became code. *(You don't need to run it — the notebook's Silver step does the
       authoritative cleaning; this is just to experience the tool.)*
 
+   ![Data Wrangler open on bronze.h365_meal_logs: the column profiles, Operations panel, Cleaning steps and Summary.](../docs/images/lab1/lab1-2c-data-wrangler.png)
+
 7. **Spark UI, monitoring & resource prioritisation (Section 6).** See *how* your jobs ran:
    1. Run the **skewed** cell, then the **tuned** cell in Section 6.
    2. Under a running/finished cell, click **… → View Spark job** (or the **Spark jobs** link) to open the **Spark UI**
@@ -173,6 +188,8 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
    3. Left nav → **Monitor** hub → open this notebook's run to see duration, status and the Spark detail for each cell.
    4. Read the **resource-prioritisation** note in the cell (custom pool / Autoscale Billing for Spark) — how a
       nightly ETL and ad-hoc queries share the capacity.
+
+   ![The inline Spark jobs monitor under a cell: job status Succeeded, stages/tasks, duration, rows and data read/written.](../docs/images/lab1/lab1-2c-spark-ui.png)
 
 8. **Copilot in the notebook (Section 7).** Experience the AI assistant:
    1. Click **Copilot** on the notebook toolbar to open the chat panel.
@@ -185,6 +202,8 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 
 > **Done when you see:** `bronze.*` (6 tables + `env_air_quality`), `silver.fact_*` (6), and **`gold.resident_360`**
 > (1,500 rows) with an `is_disengaged` split of **roughly 12% disengaged** (about 180 of 1,500 residents flagged `1`).
+
+![The Gold section output: gold.resident_360 = 1,500 rows, is_disengaged split ~182/1,318, and the DQ gate PASSED.](../docs/images/lab1/lab1-2c-gold-dq-results.png)
 
 ---
 
@@ -208,16 +227,17 @@ in Lab 4 — so build it now on the two Databricks-mirror tables.
    > ⚠️ Make sure **both** `daily_activity` **and** `dim_resident` show a tick before **Confirm** — it's easy to miss
    > one. (If you end up with only one, you can add the other later in step 3 via **Edit tables**.)
 
-   ![The New semantic model dialog: name sm_activity, daily_activity and dim_resident both ticked.](../docs/images/lab1/lab1-12-new-semantic-model.png)
+   ![The New semantic model dialog: name sm_activity, Direct Lake on SQL, daily_activity and dim_resident both ticked.](../docs/images/lab1/lab1-3a-new-sm-both-ticked.png)
 
 #### 3b · Add the relationship
 
-3. The model opens in **Model view**. It starts in **Viewing** mode (read-only). Switch to **Editing**:
-   click the **Viewing** button on the ribbon (top-left) → choose **Editing**.
+3. Open **`sm_activity`** — from the workspace list, click the model. It opens in **Model view**, starting in
+   **Viewing** mode (read-only). Switch to **Editing**: click the **Viewing** button on the ribbon (top-left) → choose **Editing**.
 
-   > **Note:** the first switch to Editing shows a one-time *"Converting semantic model…"* message (~10 sec) — expected.
+   > **Note:** the model may **not** open automatically after you click **Confirm** — if it doesn't, open **`sm_activity`**
+   > from the workspace list. The first switch to Editing shows a one-time *"Converting semantic model…"* message (~10 sec) — expected.
 
-   ![The Viewing/Editing dropdown on the model-view ribbon, with Editing highlighted.](../docs/images/lab1/lab1-23-switch-editing.png)
+   ![Switching sm_activity from Viewing to Editing: the Viewing/Editing dropdown open on the ribbon, over the daily_activity and dim_resident tables.](../docs/images/lab1/lab1-3b-editing-switch.png)
 
 4. If only one table is on the canvas, click **Edit tables** on the ribbon and tick the missing one (`daily_activity`
    or `dim_resident`), then **Confirm**.
@@ -230,9 +250,11 @@ in Lab 4 — so build it now on the two Databricks-mirror tables.
    Click **Save**. *(Direct Lake infers cardinality from row counts and shows a banner saying so — here it correctly
    detects Many-to-one / Single.)*
 
+   ![The New relationship dialog with both resident_id columns selected, Cardinality Many to one, Cross-filter Single, Make active on.](../docs/images/lab1/lab1-3b-new-relationship.png)
+
 6. Close the dialog — the two tables now show the relationship line on the canvas.
 
-   ![The sm_activity model view with the relationship line between daily_activity and dim_resident.](../docs/images/lab1/lab1-13-model-relationship.png)
+   ![The sm_activity model view with the *→1 relationship line between daily_activity and dim_resident.](../docs/images/lab1/lab1-3b-relationship-line.png)
 
 ---
 
@@ -249,12 +271,16 @@ Instead of hand-placing visuals, let **Copilot** suggest and build the report pa
 
 2. In the report editor, click **Copilot** on the toolbar to open the panel, then choose
    **Suggest content for a new report page**. Copilot proposes an outline of pages (e.g. *Resident activity overview*,
-   *Engagement by demographic segment*, *Activity trends over time*, *Sleep and recovery analysis*).
+   *Steps and movement analysis*, *Sleep quality and recovery*, *Health metrics by demographic profile*).
+
+   ![The Copilot panel in the report editor with "Suggest content for a new report page".](../docs/images/lab1/lab1-4-copilot-panel.png)
+
+   ![Copilot's suggested report-page outline built from sm_activity.](../docs/images/lab1/lab1-4-copilot-suggested-pages.png)
 
 3. Click **Create** under a page you like — Copilot builds the page and lays out the visuals for you. Repeat for any
    other pages, then press **Ctrl+S** and **Save** the report as **`rpt_activity`**.
 
-   ![Copilot's suggested report pages, built from sm_activity.](../docs/images/lab1/lab1-17-copilot-report.png)
+   ![The Resident Activity Overview page Copilot built — cards and charts over sm_activity.](../docs/images/lab1/lab1-4-copilot-report-built.png)
 
 > **Done when you see:** a report Copilot built from your semantic model — no manual visual placement. *(Copilot drafts
 > may briefly show an axis warning on a visual until the fields settle — that's normal.)*
@@ -266,12 +292,6 @@ Instead of hand-placing visuals, let **Copilot** suggest and build the report pa
 - [ ] `bronze.*`, `silver.fact_*`, and `gold.resident_360` all created by the one notebook
 - [ ] Tried **Data Wrangler**, the **Spark UI / Monitor**, and **Copilot agent mode**
 - [ ] `sm_activity` semantic model + a **Copilot-built** report
-
-### 🟡 Challenge (optional)
-- **Fell behind?** Materialize the pre-built `resident_360_prebuilt` from the shared estate into your own `gold` schema
-  (one Spark cell) and continue.
-- Enforce an explicit schema in the Bronze reads and route bad rows to a `bronze.h365_meal_logs_rejects` table.
-- Ask Copilot (agent mode) to add a **data-quality summary** cell over `gold.resident_360`.
 
 ---
 

@@ -177,12 +177,6 @@ Now make your transform **report** each run into the framework.
 - [ ] Saw your `gold.resident_360` load in the Ingestion Dashboard
 - [ ] Traced lineage from the dashboard back to your medallion
 
-### 🟡 Challenge (optional)
-
-- Re-run your **whole** Lab 1 notebook, then refresh the dashboard — watch a **second** run appear (runs-over-time grows).
-- In `mtd.ingest_control`, set `enable_flag = 0` for one table and discuss what a config-driven scheduler would now skip.
-- Add a **data-quality** column to the audit story: extend the hook to record a row count check (`rows_read` vs `rows_written`) and flag mismatches.
-
 ---
 
 ### Next up
