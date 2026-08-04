@@ -288,10 +288,10 @@ Instead of hand-placing visuals, let **Copilot** suggest and build the report pa
 ---
 
 ### ✅ Checkpoint
-- [ ] `lh_resident360` Lakehouse + `hpb_databricks_mirror` (zero-copy count = 1500)
-- [ ] `bronze.*`, `silver.fact_*`, and `gold.resident_360` all created by the one notebook
-- [ ] Tried **Data Wrangler**, the **Spark UI / Monitor**, and **Copilot agent mode**
-- [ ] `sm_activity` semantic model + a **Copilot-built** report
+- [ ] **Task 1** — `lh_resident360` Lakehouse + `hpb_databricks_mirror` created; zero-copy count on the mirror's SQL analytics endpoint = **1500**
+- [ ] **Task 2** — one notebook built `bronze.*`, `silver.fact_*`, and `gold.resident_360` (1,500 rows, ~12% disengaged); tried **Data Wrangler**, the **Spark UI / Monitor**, and **Copilot in the notebook**
+- [ ] **Task 3** — `sm_activity` semantic model (Direct Lake) with the **`daily_activity` → `dim_resident` (Many-to-one)** relationship
+- [ ] **Task 4** — a **Copilot-built** report saved as **`rpt_activity`**
 
 ---
 
