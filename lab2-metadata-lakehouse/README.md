@@ -115,6 +115,8 @@ Now make your transform **report** each run into the framework.
    — these are the **same two values** you used for the reader cell in Task 1.
 5. **Run just that cell.**
 
+   ![The audit-hook cell at the end of the notebook, printing "✅ Audit rows written to metadatadb" after the Spark jobs succeed.](../docs/images/lab2/lab2-05-audit-hook.png)
+
 > **Done when you see:** `✅ Audit rows written to metadatadb …`. (If you see a ⚠️ skip message, tell the
 > facilitator — your Lab 1 results are unaffected either way.)
 
