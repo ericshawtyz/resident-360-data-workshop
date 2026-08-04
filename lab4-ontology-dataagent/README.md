@@ -150,7 +150,10 @@ You're not designing anything — just applying the spec the notebook generated.
 - [ ] Lineage traced; a model endorsed
 
 ### 🟡 Challenge (optional)
-- Extend to the **Programme** and **Challenge** entities + their relationships (already in the generated blueprint) and re-ask a programmes/challenges question.
+- Extend to the **Programme** and **Challenge** entities + their relationships (already in the generated blueprint) and re-ask a programmes/challenges question — e.g. *"How many residents who enrolled in a programme also participate in a challenge? Break the count down by region."* (traverses Resident → `enrolledIn` → Programme **and** Resident → `participatesIn` → Challenge).
+  > ⚠️ After you add new entities/relationships, open the ontology data agent and click **Refresh** so the new entities appear in its schema. New **edges** also need a few minutes for the ontology graph model to reprocess — until then a relationship query may fail with *"…does not match any edge type in the graph."* Wait ~2–3 min and re-run; the query then returns cleanly.
+
+  ![Ontology agent with the full 5-entity schema (Challenge, Event, Programme, Region, Resident) answering the programmes-and-challenges question with a by-region chart](../docs/images/lab4/lab4-06-fullgraph-answer.png)
 - Add **row-level security** on a semantic model (**Manage roles → New**, filter `dim_resident[region] = "East"`, **View as**) and confirm the agent respects it.
 - Publish the ontology agent to **Teams / M365 Copilot**.
 
