@@ -90,7 +90,7 @@ You're not designing anything — simply applying the spec the notebook generate
 
 > **Done when you see:** the entity nodes joined by the named edges on the canvas (the editor auto-saves — no publish).
 
-![resident_ontology graph — Resident joined to Event (attended) and Region (livesIn), with Event → Region (heldIn)](../docs/images/lab4/lab4-02-ontology-graph.png)
+![resident_ontology graph — Resident at the hub joined to Region (livesIn), Event (attended), Programme (enrolledIn) and Challenge (participatesIn); Event also joins Region (heldIn)](../docs/images/lab4/lab4-02-ontology-graph.png)
 
 > **Editor tips (preview):** bind **Lakehouse tables only**; on the **first (static)** binding set **Timestamp = None** — and set it **last**, right before Save, because selecting the entity key can reset the Timestamp field back to empty. Each entity: *Configure entity type → Add properties from data → Add data binding → Lakehouse table → select table → Define entity type key → Timestamp = None → Save.* For a **second (timeseries) binding** (Resident, Region): *Manage property bindings → Add binding and properties → Add data binding → Lakehouse table → select the fact table → select the **date column** as Timestamp → delete any duplicated column → Save.* Each relationship: *Add relationship → name/origin/target → Create → View Relationship Type details → Browse available sources → select the mapping table → map both keys → Save.*
 
@@ -118,21 +118,27 @@ You're not designing anything — simply applying the spec the notebook generate
 
 1. Ask **both** agents the same multi-hop question:
 
-   > *"For residents who attended events held in hazy-air regions, how many are disengaged — and which regions are those?"*
+   > *"How many residents attended events in each region? Return a chart by region."*
 
-2. Read the **SM agent's** answer: it only has activity data, so it can't join events + air quality — it declines or answers narrowly.
+   This traverses **Resident → attended → Event → heldIn → Region** — a join the flat, activity-only agent cannot make.
+
+2. Read the **SM agent's** answer: it only has activity data, so it can't join residents to events and regions — it declines or answers narrowly.
 
 ![Semantic-model agent declines — "unable to retrieve… a limitation in event-level or haze data connection in the current dataset"](../docs/images/lab4/lab4-04-sm-answer.png)
 
-3. Read the **Ontology agent's** answer: it traverses **Resident → attended → Event → heldIn → Region (`region_is_hazy`)** and answers cleanly, grouped by region.
+3. Read the **Ontology agent's** answer: it traverses **Resident → attended → Event → heldIn → Region**, aggregates by region, and returns a clean bar chart in ~25–30 sec.
 
 ![Ontology agent traverses Resident → Event → Region and answers the multi-hop question the flat agent could not](../docs/images/lab4/lab4-03-ontology-answer.png)
 
 4. Try 2–3 more questions from the bank and **generate a visual** for each.
 
-> **Note:** a multi-hop ontology answer takes ~60–90 sec (plan → query the graph → chart). It reports by group, never by individual `resident_id`.
+> **Note:** a multi-hop ontology answer takes ~30–90 sec (plan → query the graph → chart). It reports by group, never by individual `resident_id`.
 
-> ⚠️ **Facilitator note — select a Q1 that returns data.** The `is_disengaged` flag is defined as *low steps **AND no events attended** AND a dropped programme*, so "**disengaged** residents who **attended** events" is an empty set — an agent will correctly answer *"no data."* For the headline win to land, ask the multi-hop **without** the disengaged filter, e.g. *"For residents who attended events in hazy-air regions, how many attended per region — and which regions are hazy?"* (still traverses Resident → attended → Event → heldIn → Region). The **contrast still holds**: the SM agent can't answer either phrasing (no event/haze data); the ontology agent can.
+> ⚠️ **Facilitator note — choose questions that resolve on the graph.** Two easy traps:
+> - **Contradictory filters.** The `is_disengaged` flag means *low steps **AND no events attended** AND a dropped programme*, so "**disengaged** residents who **attended** events" is an empty set — the agent correctly answers *"no data."* Ask the traversal **without** the disengaged filter (as in step 1).
+> - **Filtering on an unbound property.** `region_is_hazy` lives on the region reference data, not on the tables bound to the **Region** entity in this ontology, so a haze-filtered question (e.g. *"…events in hazy-air regions…"*) may return a *"couldn't retrieve the data"* error. Keep the headline question to the region traversal above; treat haze filtering as an extension once **Region** is also bound to a table carrying `region_is_hazy`.
+>
+> The **contrast still holds** either way: the SM agent can't traverse residents → events → regions at all; the ontology agent can.
 
 ---
 

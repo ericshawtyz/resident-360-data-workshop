@@ -14,12 +14,17 @@ programme, event or challenge.
 
 ## Question bank
 
-### Guided path (3-entity ontology: Resident · Region · Event) — the headline multi-hop
-These traverse **Resident → attended → Event → heldIn → Region** and use `region_is_hazy`, so the flat Lab 1
-agent (activity only) can't answer them.
-1. **For residents who attended events held in hazy-air regions, how many are disengaged — and which regions are those?**  *(the headline win)*
-2. Which regions are hazy, and how many events do their residents attend on average?
-3. Do residents in hazy regions attend fewer events than residents in clear-air regions?
+### Guided path (Resident · Event · Region) — the headline multi-hop
+These traverse **Resident → attended → Event → heldIn → Region**, so the flat Lab 1 agent (activity only) can't
+answer them.
+1. **How many residents attended events in each region? Return a chart by region.**  *(the headline win — resolves reliably on the graph)*
+2. Do residents attend more events in some regions than others? Show the top and bottom regions.
+3. On average, how many events does a resident attend, broken down by region?
+
+> ⚠️ Filtering on **`region_is_hazy`** (e.g. *"…events in hazy-air regions…"*) needs the **Region** entity bound to a
+> table that carries the haze flag. In the base ontology Region is bound to `resident_360` + `fact_event_attendance`,
+> which don't expose it, so a haze-filtered question may error with *"couldn't retrieve the data."* Add that binding
+> first if you want the haze cut.
 
 ### Full graph (challenge — after you add Programme & Challenge)
 Needs the 5-entity ontology from the challenge.
@@ -41,7 +46,7 @@ Needs the 5-entity ontology from the challenge.
 
 ## Compare vs the Lab 1 agent
 Ask **Q1** to both the **Lab 1 agent** (`Resident360 Agent`, activity-only) and the **ontology agent**. The Lab 1
-agent has no event or air-quality data, so it can't join those domains; the ontology agent traverses
+agent has no event or region data, so it can't join those domains; the ontology agent traverses
 Resident → Event → Region and answers directly, grouped by region. This is the headline "why an ontology" moment.
 After the challenge (5-entity graph), Q4 shows the same win across programmes and challenges.
 
