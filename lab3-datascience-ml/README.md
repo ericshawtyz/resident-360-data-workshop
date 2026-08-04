@@ -106,11 +106,11 @@ flowchart LR
 ![Real-time endpoint call — HTTP 200 with a live prediction {"predictions":[[1]]}](../docs/images/lab3/lab3-04-endpoint-score.png)
 
 > **No-code alternative:** on the model's version page, ribbon **Preview predictions** → **Autofill** (or
-> type feature values) → **Get predictions** calls the live endpoint and shows the result right in the UI —
-> handy to confirm the endpoint works without touching the notebook.
+> enter feature values) → **Get predictions** calls the live endpoint and shows the result right in the UI —
+> a convenient way to confirm the endpoint works without touching the notebook.
 
 > **Note:** The first endpoint call may fail with a `ReadTimeout` while the endpoint warms up (cold start).
-> Just run the cell again — the warmed endpoint responds in a few seconds.
+> Simply run the cell again — the warmed endpoint responds in a few seconds.
 >
 > **Alternative:** If you skip setting a default version (Task 3 step 3), call a specific version instead by
 > using the version scoring URL: `…/mlmodels/<id>/endpoint/versions/1/score`.

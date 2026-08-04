@@ -37,7 +37,7 @@ Foundation only — you start building the pipeline in Lab 1.
 
    ![The Workspaces flyout listing the assigned HPB Workshop workspace.](../docs/images/lab0/lab0-1-fabric-workspace.png)
 
-> **Note:** First sign-in lands you in **My workspace** with a free licence — that's expected. Do your lab work in your
+> **Note:** First sign-in places you in **My workspace** with a free licence — that's expected. Do your lab work in your
 > assigned workshop workspace, which sits on the Fabric capacity.
 
 ### Task 2 — Sign in to Azure Databricks

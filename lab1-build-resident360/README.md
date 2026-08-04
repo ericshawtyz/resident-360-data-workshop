@@ -73,9 +73,9 @@ Fabric with **zero copies** (Fabric reads them live).
 
    ![The New item panel with the Lakehouse tile.](../docs/images/lab1/lab1-02-newitem-panel.png)
 
-3. Name it **`lh_resident360`**, keep **Lakehouse schemas** ticked, click **Create**.
+3. Name it **`lh_resident360`**, keep **Lakehouse schemas** checked, click **Create**.
 
-   ![The New Lakehouse dialog with "lh_resident360" typed and Lakehouse schemas ticked.](../docs/images/lab1/lab1-04-lakehouse-named.png)
+   ![The New Lakehouse dialog with "lh_resident360" entered and Lakehouse schemas checked.](../docs/images/lab1/lab1-04-lakehouse-named.png)
 
 4. Back in the workspace, click **+ New item** again → search `Mirrored Azure Databricks` → click the
    **Mirrored Azure Databricks catalog** tile.
@@ -92,11 +92,11 @@ Fabric with **zero copies** (Fabric reads them live).
    ![The New connection form for the Mirrored Azure Databricks catalog, with the workspace URL and OAuth sign-in.](../docs/images/lab1/lab1-08-mirror-connection.png)
 
    > If a connection was **already** set up for you, it appears in the dropdown listed by its Databricks **URL**
-   > (`https://adb-....azuredatabricks.net`) — keep **Existing connection** and just pick it.
+   > (`https://adb-....azuredatabricks.net`) — keep **Existing connection** and select it.
 
-6. Choose catalog **`hpb_databricks`**, tick the **`gold`** schema → **Next**.
+6. Choose catalog **`hpb_databricks`**, check the **`gold`** schema → **Next**.
 
-   ![The Choose data step with hpb_databricks and the gold schema ticked.](../docs/images/lab1/lab1-09-mirror-choosedata.png)
+   ![The Choose data step with hpb_databricks and the gold schema checked.](../docs/images/lab1/lab1-09-mirror-choosedata.png)
 
 7. On **Review and create**, set the **Name** to **`hpb_databricks_mirror`** → **Create**.
 
@@ -135,7 +135,7 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
    ![The ⋯ menu on the Files node with New subfolder.](../docs/images/lab2/lab2-02-files-menu.png)
 
 2. Hover **`landing`** → **⋯** → **Upload → Upload files** → select **all seven files** from the kit's `data/` folder →
-   **Upload**. Watch each file reach a green **Completed** tick, then confirm the folder shows *"Files 7"*.
+   **Upload**. Watch each file reach a green **Completed** check, then confirm the folder shows *"Files 7"*.
 
    ![The Upload files panel with all seven files showing Completed.](../docs/images/lab1/lab1-2a-upload-complete.png)
 
@@ -143,17 +143,17 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 
 #### 2b · Import & attach the notebook
 
-3. Workspace toolbar → **Import → Notebook → From this computer** → pick
+3. Workspace toolbar → **Import → Notebook → From this computer** → select
    **`resident360_medallion.ipynb`** from the kit's `notebooks/` folder.
 
    ![Import → Notebook → From this computer.](../docs/images/lab2/lab2-09-import-notebook-menu.png)
 
-4. Open the notebook → Explorer **Add data items → From OneLake catalog** → tick your **`lh_resident360`**
+4. Open the notebook → Explorer **Add data items → From OneLake catalog** → check your **`lh_resident360`**
    **Lakehouse** (the one whose Location is your workspace — **not** its SQL analytics endpoint) → **Add**.
 
-   ![The OneLake catalog picker; choose the Lakehouse, not the SQL endpoint.](../docs/images/lab2/lab2-13-onelake-picker.png)
+   ![The OneLake catalog picker; select the Lakehouse, not the SQL endpoint.](../docs/images/lab2/lab2-13-onelake-picker.png)
 
-   > ⚠️ The picker lists `lh_resident360` more than once. Pick the **Lakehouse** — it's the one that can read
+   > ⚠️ The picker lists `lh_resident360` more than once. Select the **Lakehouse** — it's the one that can read
    > `Files/landing/` and write tables. The SQL endpoint can't write, so the run would fail.
 
    Once attached, the Explorer shows **`lh_resident360`** and the notebook is ready to **Run all**.
@@ -168,15 +168,15 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 
    ![The medallion notebook running all cells after the Spark session starts.](../docs/images/lab1/lab1-2c-run-all-started.png)
 
-6. **Data Wrangler (Section 1).** After Bronze lands, get a feel for Fabric's no-code data cleaning:
+6. **Data Wrangler (Section 1).** After Bronze lands, explore Fabric's no-code data cleaning:
    1. In the Explorer, expand **`lh_resident360` → Tables → `bronze`** and hover **`h365_meal_logs`** → **⋯** →
       **Open in Data Wrangler** (or ribbon **Home → Data Wrangler → bronze.h365_meal_logs**).
-   2. In the left **Operations** panel, choose **Find and replace → Drop missing values**, pick the **`calories`**
+   2. In the left **Operations** panel, choose **Find and replace → Drop missing values**, select the **`calories`**
       column, and **Apply** — watch the row count drop and the change appear in the **Cleaning steps** list.
    3. Try a second operation, e.g. **Transformations → Change column type** on `calories` → **Decimal**.
-   4. Click **Add code to notebook** (top right) — Data Wrangler drops the equivalent PySpark into a new cell so you
-      can see how the clicks became code. *(You don't need to run it — the notebook's Silver step does the
-      authoritative cleaning; this is just to experience the tool.)*
+   4. Click **Add code to notebook** (top right) — Data Wrangler adds the equivalent PySpark into a new cell so you
+      can see how the selections became code. *(You don't need to run it — the notebook's Silver step performs the
+      authoritative cleaning; this step is only to experience the tool.)*
 
    ![Data Wrangler open on bronze.h365_meal_logs: the column profiles, Operations panel, Cleaning steps and Summary.](../docs/images/lab1/lab1-2c-data-wrangler.png)
 
@@ -221,13 +221,13 @@ in Lab 4 — so build it now on the two Databricks-mirror tables.
 2. In the dialog:
    - **Name** the model **`sm_activity`**.
    - Leave **Direct Lake on SQL** selected.
-   - Under the **`gold`** folder, tick **`daily_activity`** and **`dim_resident`** (leave the others unticked).
+   - Under the **`gold`** folder, select **`daily_activity`** and **`dim_resident`** (leave the others unselected).
    - Click **Confirm**.
 
-   > ⚠️ Make sure **both** `daily_activity` **and** `dim_resident` show a tick before **Confirm** — it's easy to miss
-   > one. (If you end up with only one, you can add the other later in step 3 via **Edit tables**.)
+   > ⚠️ Make sure **both** `daily_activity` **and** `dim_resident` are checked before **Confirm** — it's easy to miss
+   > one. (If you end up with only one, you can add the other later on the Model view ribbon via **Edit tables**.)
 
-   ![The New semantic model dialog: name sm_activity, Direct Lake on SQL, daily_activity and dim_resident both ticked.](../docs/images/lab1/lab1-3a-new-sm-both-ticked.png)
+   ![The New semantic model dialog: name sm_activity, Direct Lake on SQL, daily_activity and dim_resident both selected.](../docs/images/lab1/lab1-3a-new-sm-both-ticked.png)
 
 #### 3b · Add the relationship
 
@@ -239,10 +239,7 @@ in Lab 4 — so build it now on the two Databricks-mirror tables.
 
    ![Switching sm_activity from Viewing to Editing: the Viewing/Editing dropdown open on the ribbon, over the daily_activity and dim_resident tables.](../docs/images/lab1/lab1-3b-editing-switch.png)
 
-4. If only one table is on the canvas, click **Edit tables** on the ribbon and tick the missing one (`daily_activity`
-   or `dim_resident`), then **Confirm**.
-
-5. On the ribbon click **Manage relationships → + New relationship** and set:
+4. On the ribbon click **Manage relationships → + New relationship** and set:
    - **From table:** `daily_activity`, **column** `resident_id`
    - **To table:** `dim_resident`, **column** `resident_id`
    - **Cardinality:** **Many to one (\*:1)** · **Cross-filter direction:** **Single** · **Make active:** on
@@ -252,7 +249,7 @@ in Lab 4 — so build it now on the two Databricks-mirror tables.
 
    ![The New relationship dialog with both resident_id columns selected, Cardinality Many to one, Cross-filter Single, Make active on.](../docs/images/lab1/lab1-3b-new-relationship.png)
 
-6. Close the dialog — the two tables now show the relationship line on the canvas.
+5. Close the dialog — the two tables now show the relationship line on the canvas.
 
    ![The sm_activity model view with the *→1 relationship line between daily_activity and dim_resident.](../docs/images/lab1/lab1-3b-relationship-line.png)
 

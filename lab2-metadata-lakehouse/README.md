@@ -69,7 +69,7 @@ flowchart LR
 > `mtd` schema, and fill `SQL_SERVER` / `SQL_DB` into both asset cells. Full steps and the live values are in
 > `assets/PROVISIONING-RUNBOOK.md` and the private facilitator record.
 
-> **New to Fabric?** Each step is small and self-contained — just follow them in order.
+> **New to Fabric?** Each step is small and self-contained — follow them in order.
 
 ---
 
@@ -113,7 +113,7 @@ Now make your transform **report** each run into the framework.
 3. Open `assets/audit-hook-cell.py`, copy its full contents, and paste them into that cell.
 4. Confirm the `SQL_SERVER` and `SQL_DB` values at the top match the facilitator's `metadatadb`
    — these are the **same two values** you used for the reader cell in Task 1.
-5. **Run just that cell.**
+5. **Run only that cell.**
 
    ![The audit-hook cell at the end of the notebook, printing "✅ Audit rows written to metadatadb" after the Spark jobs succeed.](../docs/images/lab2/lab2-05-audit-hook.png)
 
