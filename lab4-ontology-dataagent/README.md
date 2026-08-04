@@ -45,7 +45,7 @@ flowchart LR
 - `notebooks/generate_ontology.ipynb` — reads your data and prints the ontology **blueprint**.
 - `assets/data_agent_questions.md` — the agent instructions + question bank.
 
-> **New to Fabric?** Each step is small and self-contained — just follow them in order.
+> **New to Fabric?** Each step is small and self-contained — follow them in order.
 
 ---
 
@@ -66,25 +66,25 @@ flowchart LR
 
 ### Task 2 — Create the ontology and apply the blueprint
 
-You're not designing anything — just applying the spec the notebook generated.
+You're not designing anything — simply applying the spec the notebook generated.
 
 1. Workspace → **+ New item** → search **Ontology** → click **Ontology (preview)** → name it **`resident_ontology`** → **Create**.
-2. If a welcome dialog appears, tick **Don't show again** and close it.
+2. If a welcome dialog appears, check **Don't show again** and close it.
 3. **Add the entities.** For each row in the blueprint's *entities* table:
    1. Ribbon → **Add entity type** → name it (e.g. **Resident**).
-   2. **Configure entity type → Add properties from data → Add data binding → Lakehouse table** → pick the blueprint's **binding** table.
+   2. **Configure entity type → Add properties from data → Add data binding → Lakehouse table** → select the blueprint's **binding** table.
    3. Set the **key** to the blueprint's key column.
    4. In **Timeseries data**, set **Timestamp = None**.
    5. **Save**.
-   6. **Two-binding entities (Resident, Region).** The blueprint lists a **second, timeseries** binding for these. After the first (static) binding saves, stay on that entity → **Manage property bindings → Add binding and properties** → **Add data binding → Lakehouse table** → pick the second table (Resident ← `silver.fact_meal_log`; Region ← `silver.fact_event_attendance`) → the key auto-maps → in **Timeseries data** pick the **date column** as **Timestamp** (Resident → `log_date`; Region → `event_date`) → **Save**. The entity now reads a static profile **and** a timeseries.
+   6. **Two-binding entities (Resident, Region).** The blueprint lists a **second, timeseries** binding for these. After the first (static) binding saves, stay on that entity → **Manage property bindings → Add binding and properties** → **Add data binding → Lakehouse table** → select the second table (Resident ← `silver.fact_meal_log`; Region ← `silver.fact_event_attendance`) → the key auto-maps → in **Timeseries data** select the **date column** as **Timestamp** (Resident → `log_date`; Region → `event_date`) → **Save**. The entity now reads a static profile **and** a timeseries.
 
-   > ⚠️ **One non-timeseries binding only.** The first binding is non-timeseries (**Timestamp = None**). Every **additional** binding **must be timeseries** — the editor forces you to pick a date column and disables **None** ("Only one non-timeseries binding is allowed per entity type"). A second static table (no date column) is rejected with *"The selected data source has no date/time columns."*
+   > ⚠️ **One non-timeseries binding only.** The first binding is non-timeseries (**Timestamp = None**). Every **additional** binding **must be timeseries** — the editor requires you to select a date column and disables **None** ("Only one non-timeseries binding is allowed per entity type"). A second static table (no date column) is rejected with *"The selected data source has no date/time columns."*
    > ⚠️ Bind **Lakehouse tables only** (the picker also offers Eventhouse).
    > ⚠️ **Duplicate columns:** if the second table repeats a column already bound (e.g. `resident_id`), the editor flags *"…already bound in another binding"* — click **Delete property binding** on that row in the second binding before Save.
 
 4. **Add the relationships.** For each row in the blueprint's *relationships* table:
    1. Ribbon → **Add relationship** → set **name**, **origin**, **target** → **Create**.
-   2. Click the new **edge** on the canvas → **Browse available sources** → pick the blueprint's **mapping table**.
+   2. Click the new **edge** on the canvas → **Browse available sources** → select the blueprint's **mapping table**.
    3. Map the **origin key** and the **target key** exactly as the blueprint shows.
    4. **Verify both `Matched <Entity>` dropdowns** show the intended columns, then **Save**.
 
@@ -92,15 +92,15 @@ You're not designing anything — just applying the spec the notebook generated.
 
 ![resident_ontology graph — Resident joined to Event (attended) and Region (livesIn), with Event → Region (heldIn)](../docs/images/lab4/lab4-02-ontology-graph.png)
 
-> **Editor tips (preview):** bind **Lakehouse tables only**; on the **first (static)** binding set **Timestamp = None** — and set it **last**, right before Save, because selecting the entity key can reset the Timestamp field back to empty. Each entity: *Configure entity type → Add properties from data → Add data binding → Lakehouse table → pick table → Define entity type key → Timestamp = None → Save.* For a **second (timeseries) binding** (Resident, Region): *Manage property bindings → Add binding and properties → Add data binding → Lakehouse table → pick the fact table → pick the **date column** as Timestamp → delete any duplicated column → Save.* Each relationship: *Add relationship → name/origin/target → Create → View Relationship Type details → Browse available sources → pick the mapping table → map both keys → Save.*
+> **Editor tips (preview):** bind **Lakehouse tables only**; on the **first (static)** binding set **Timestamp = None** — and set it **last**, right before Save, because selecting the entity key can reset the Timestamp field back to empty. Each entity: *Configure entity type → Add properties from data → Add data binding → Lakehouse table → select table → Define entity type key → Timestamp = None → Save.* For a **second (timeseries) binding** (Resident, Region): *Manage property bindings → Add binding and properties → Add data binding → Lakehouse table → select the fact table → select the **date column** as Timestamp → delete any duplicated column → Save.* Each relationship: *Add relationship → name/origin/target → Create → View Relationship Type details → Browse available sources → select the mapping table → map both keys → Save.*
 
 ---
 
 ### Task 3 — Build the baseline agent (semantic-model source)
 
 1. Workspace → **+ New item → Data agent** → name **`Resident360 SM Agent`** → **Create**.
-2. Toolbar → **Add data → Data source** → pick **`sm_activity`** → **Add**.
-3. In the Explorer, tick **`daily_activity`** and **`dim_resident`**.
+2. Toolbar → **Add data → Data source** → select **`sm_activity`** → **Add**.
+3. In the Explorer, check **`daily_activity`** and **`dim_resident`**.
 4. Toolbar → **Agent instructions** → paste the instructions from `assets/data_agent_questions.md`.
    *(The instructions box is a **Markdown preview** — click it once to switch to edit mode, then paste.)*
 
@@ -109,7 +109,7 @@ You're not designing anything — just applying the spec the notebook generated.
 ### Task 4 — Build the ontology agent
 
 1. Workspace → **+ New item → Data agent** → name **`Resident360 Ontology Agent`** → **Create**.
-2. Toolbar → **Add data → Data source** → pick **`resident_ontology`** → **Add** (added whole — no tables to tick).
+2. Toolbar → **Add data → Data source** → select **`resident_ontology`** → **Add** (added whole — no tables to check).
 3. Toolbar → **Agent instructions** → paste the same instructions from `assets/data_agent_questions.md`.
 
 ---
@@ -132,7 +132,7 @@ You're not designing anything — just applying the spec the notebook generated.
 
 > **Note:** a multi-hop ontology answer takes ~60–90 sec (plan → query the graph → chart). It reports by group, never by individual `resident_id`.
 
-> ⚠️ **Facilitator note — pick a Q1 that returns data.** The `is_disengaged` flag is defined as *low steps **AND no events attended** AND a dropped programme*, so "**disengaged** residents who **attended** events" is an empty set — an agent will correctly answer *"no data."* For the headline win to land, ask the multi-hop **without** the disengaged filter, e.g. *"For residents who attended events in hazy-air regions, how many attended per region — and which regions are hazy?"* (still traverses Resident → attended → Event → heldIn → Region). The **contrast still holds**: the SM agent can't answer either phrasing (no event/haze data); the ontology agent can.
+> ⚠️ **Facilitator note — select a Q1 that returns data.** The `is_disengaged` flag is defined as *low steps **AND no events attended** AND a dropped programme*, so "**disengaged** residents who **attended** events" is an empty set — an agent will correctly answer *"no data."* For the headline win to land, ask the multi-hop **without** the disengaged filter, e.g. *"For residents who attended events in hazy-air regions, how many attended per region — and which regions are hazy?"* (still traverses Resident → attended → Event → heldIn → Region). The **contrast still holds**: the SM agent can't answer either phrasing (no event/haze data); the ontology agent can.
 
 ---
 
@@ -140,6 +140,9 @@ You're not designing anything — just applying the spec the notebook generated.
 
 1. In the workspace, switch to **Lineage view**.
 2. Trace one artifact back through the graph — from an agent/report to the semantic model, to `gold.resident_360`, to `silver`/`bronze`, to the mirrored Databricks tables. *(Read the actual graph on screen — it's your authoritative lineage.)*
+
+   ![Lineage view of the workspace — AzureDatabricks → hpb_databricks_mirror → sm_activity → rpt_activity and the Resident360 data agent, plus lh_resident360 → medallion notebook → experiment → ML model.](../docs/images/lab4/lab4-05-lineage.png)
+
 3. Right-click a mirrored table → **Impact analysis** ("if this changes, what breaks?").
 4. **Endorse** a semantic model: **⋯ (More options) → Settings → Endorsement and discovery → Promoted → Apply**.
 
