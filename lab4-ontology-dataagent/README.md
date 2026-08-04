@@ -12,6 +12,7 @@ domains a flat model can't. You'll **generate an ontology from your data** (a no
 
 ### You'll build
 - An **ontology** (`resident_ontology`) — its blueprint **generated from your `gold`/`silver` data** by a notebook.
+  Two entities (**Resident**, **Region**) get a **second, timeseries binding** — the ontology reads two tables as one entity.
 - A **semantic-model** data agent (baseline) and an **ontology** data agent.
 - A side-by-side **comparison** on a multi-hop question, plus **end-to-end lineage**.
 
@@ -53,13 +54,13 @@ flowchart LR
 1. Import **`generate_ontology.ipynb`** (workspace **Import → Notebook → From this computer**) and open it.
 2. Attach the **`lh_resident360`** Lakehouse (Explorer → **Add data items → From OneLake catalog** → the Lakehouse).
 3. Click **Run all**.
-4. Read Section 1's output — the **entities** it found (Resident, Region, Event, Programme, Challenge) with their keys and instance counts.
+4. Read Section 1's output — the **entities** it found (Resident, Region, Event, Programme, Challenge) with their keys and instance counts. Note that **Resident** and **Region** each list **two binding rows** — a static profile (Timestamp = None) **plus a timeseries fact** (Resident ← `silver.fact_meal_log`@`log_date`; Region ← `silver.fact_event_attendance`@`event_date`).
 5. Read Section 2's output — the **relationships** it found (e.g. Resident —livesIn→ Region), with the exact key columns.
 6. Scroll to Section 3 — the **blueprint** (two tables: entities and relationships). **Keep this on screen** for Task 2.
 
-![Generated ontology blueprint — the entities table (Resident, Region, Event, Programme, Challenge with keys, Lakehouse bindings, Timestamp = None) and the relationships table (livesIn, attended, heldIn, enrolledIn, participatesIn) with origin → target keys](../docs/images/lab4/lab4-01-blueprint.png)
+![Generated ontology blueprint — the entities table (Resident, Region, Event, Programme, Challenge with keys, Lakehouse bindings, Timestamp column; Resident and Region each shown with a second timeseries binding row) and the relationships table (livesIn, attended, heldIn, enrolledIn, participatesIn) with origin → target keys](../docs/images/lab4/lab4-01-blueprint.png)
 
-> **Done when you see:** a printed blueprint listing the entities (Timestamp = None) and the relationships with their mapping tables and `origin → target` keys.
+> **Done when you see:** a printed blueprint listing the entities and the relationships with their mapping tables and `origin → target` keys — with **Resident** and **Region** each showing a **second, timeseries** binding row (a date column in the Timestamp position).
 
 ---
 
@@ -75,9 +76,11 @@ You're not designing anything — just applying the spec the notebook generated.
    3. Set the **key** to the blueprint's key column.
    4. In **Timeseries data**, set **Timestamp = None**.
    5. **Save**.
+   6. **Two-binding entities (Resident, Region).** The blueprint lists a **second, timeseries** binding for these. After the first (static) binding saves, stay on that entity → **Manage property bindings → Add binding and properties** → **Add data binding → Lakehouse table** → pick the second table (Resident ← `silver.fact_meal_log`; Region ← `silver.fact_event_attendance`) → the key auto-maps → in **Timeseries data** pick the **date column** as **Timestamp** (Resident → `log_date`; Region → `event_date`) → **Save**. The entity now reads a static profile **and** a timeseries.
 
-   > ⚠️ **Timestamp = None** for every entity — the bound tables have date columns, so the editor asks for a timestamp; leaving one set triggers a "non-timeseries binding required" error and blocks Save.
+   > ⚠️ **One non-timeseries binding only.** The first binding is non-timeseries (**Timestamp = None**). Every **additional** binding **must be timeseries** — the editor forces you to pick a date column and disables **None** ("Only one non-timeseries binding is allowed per entity type"). A second static table (no date column) is rejected with *"The selected data source has no date/time columns."*
    > ⚠️ Bind **Lakehouse tables only** (the picker also offers Eventhouse).
+   > ⚠️ **Duplicate columns:** if the second table repeats a column already bound (e.g. `resident_id`), the editor flags *"…already bound in another binding"* — click **Delete property binding** on that row in the second binding before Save.
 
 4. **Add the relationships.** For each row in the blueprint's *relationships* table:
    1. Ribbon → **Add relationship** → set **name**, **origin**, **target** → **Create**.
@@ -89,7 +92,7 @@ You're not designing anything — just applying the spec the notebook generated.
 
 ![resident_ontology graph — Resident joined to Event (attended) and Region (livesIn), with Event → Region (heldIn)](../docs/images/lab4/lab4-02-ontology-graph.png)
 
-> **Editor tips (preview):** bind **Lakehouse tables only**; set **Timestamp = None** for every entity — and set it **last**, right before Save, because selecting the entity key can reset the Timestamp field back to empty. Each entity: *Configure entity type → Add properties from data → Add data binding → Lakehouse table → pick table → Define entity type key → Timestamp = None → Save.* Each relationship: *Add relationship → name/origin/target → Create → View Relationship Type details → Browse available sources → pick the mapping table → map both keys → Save.*
+> **Editor tips (preview):** bind **Lakehouse tables only**; on the **first (static)** binding set **Timestamp = None** — and set it **last**, right before Save, because selecting the entity key can reset the Timestamp field back to empty. Each entity: *Configure entity type → Add properties from data → Add data binding → Lakehouse table → pick table → Define entity type key → Timestamp = None → Save.* For a **second (timeseries) binding** (Resident, Region): *Manage property bindings → Add binding and properties → Add data binding → Lakehouse table → pick the fact table → pick the **date column** as Timestamp → delete any duplicated column → Save.* Each relationship: *Add relationship → name/origin/target → Create → View Relationship Type details → Browse available sources → pick the mapping table → map both keys → Save.*
 
 ---
 
