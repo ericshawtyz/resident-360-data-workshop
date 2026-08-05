@@ -14,43 +14,42 @@ programme, event or challenge.
 
 ## Question bank
 
-### Guided path (Resident · Event · Region) — the headline multi-hop
-These traverse **Resident → attended → Event → heldIn → Region**, so the flat Lab 1 agent (activity only) can't
-answer them.
-1. **How many residents attended events in each region? Return a chart by region.**  *(the headline win — resolves reliably on the graph)*
-2. Do residents attend more events in some regions than others? Show the top and bottom regions.
-3. On average, how many events does a resident attend, broken down by region?
+### Multi-hop relationship questions (Resident · Programme · Event · Region)
+These span several domains. **Both** agents can answer them once the semantic model has the same tables — the point
+is to compare *how* each does it (star joins vs. named-relationship traversal).
+1. **Among residents who dropped a programme, how many attended at least one event, broken down by the region where those events were held? Return a chart by region.**  *(the headline comparison — spans enrolledIn + attended + heldIn)*
+2. How many residents attended events in each region? Return a chart by region.
+3. On average, how many events does a resident attend, broken down by their home region?
 
-> ⚠️ Filtering on **`region_is_hazy`** (e.g. *"…events in hazy-air regions…"*) needs the **Region** entity bound to a
-> table that carries the haze flag. In the base ontology Region is bound to `resident_360` + `fact_event_attendance`,
-> which don't expose it, so a haze-filtered question may error with *"couldn't retrieve the data."* Add that binding
-> first if you want the haze cut.
-
-### Full graph (challenge — after you add Programme & Challenge)
-Needs the 5-entity ontology from the challenge.
-4. Which programmes do disengaged residents in the East most often drop, and are they in challenges?
-5. Which regions have the most residents enrolled in "Eat Drink Shop Healthy" but with low challenge progress?
+> ⚠️ **"region" is ambiguous** — it appears as a resident's *home* region (`livesIn`) and an event's *held-in* region
+> (`heldIn`). Phrase the question so the intended hop is explicit. The ontology's named edges disambiguate; the flat
+> model relies on the agent picking the right `region` column.
 
 ### Engagement & risk
-6. Which regions have the highest share of disengaged residents?
-7. How many residents are disengaged by age band?
-8. Compare average daily steps for residents who attended ≥1 event vs those who attended none.
+4. Which regions have the highest share of disengaged residents?
+5. How many residents are disengaged by age band?
+6. Compare average daily steps for residents who attended ≥1 event vs those who attended none.
 
-### Diet & screening
-9. What is the % Healthier Choice for residents at High screening risk vs Low?
-10. Average calories logged per meal type.
+### Diet, rewards & screening
+7. What is the % Healthier Choice for residents at High screening risk vs Low?
+8. Average calories logged per meal type.
+9. Healthpoints earned by programme, and eVoucher value redeemed by region.
 
-### Rewards & challenges *(full graph)*
-11. Healthpoints earned by programme, and eVoucher value redeemed by region.
+### Programmes & challenges
+10. Which programmes do disengaged residents in the East most often drop?
+11. Which regions have the most residents enrolled in "Eat Drink Shop Healthy" but with low challenge progress?
 12. Which challenges have the highest completion, and in which regions?
 
-## Compare vs the Lab 1 agent
-Ask **Q1** to both the **Lab 1 agent** (`Resident360 Agent`, activity-only) and the **ontology agent**. The Lab 1
-agent has no event or region data, so it can't join those domains; the ontology agent traverses
-Resident → Event → Region and answers directly, grouped by region. This is the headline "why an ontology" moment.
-After the challenge (5-entity graph), Q4 shows the same win across programmes and challenges.
+## Compare the two agents (the point of Task 5)
+Ask **Q1** to **both** the **`Resident360 SM Agent`** (on `sm_resident360`) and the **`Resident360 Ontology Agent`**
+(on `resident_ontology`). Because both read the same six tables, **both return the same chart** — validating the
+result. The difference is *architectural*: the SM agent joins the star on `resident_id`; the ontology agent traverses
+named relationships (`enrolledIn`, `attended`, `heldIn`). Discuss when each fits:
+- **Semantic model** — classic BI metrics, dashboards, well-understood star schemas.
+- **Ontology** — named/typed relationships, deep or variable-length multi-hop traversal, and a governed layer reused
+  across many agents and apps.
 
 ## Demo flow
-1. Q6 → bar chart of disengaged share by region.
-2. Q1 → the multi-hop win (ontology vs Lab 1 agent).
-3. *(after the challenge)* Q4 or Q12 → matrix (programme/challenge × region). Pin the three visuals.
+1. Q4 → bar chart of disengaged share by region.
+2. Q1 → ask both agents; show identical results, then contrast star joins vs. graph traversal.
+3. Q12 → matrix (challenge × region). Pin the visuals.

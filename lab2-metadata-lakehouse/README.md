@@ -9,51 +9,54 @@
 ### The story
 
 In Lab 1 you built the Resident 360 medallion by hand. In production, HPB runs **hundreds** of such
-loads — and needs to answer, at a glance: *did every load succeed? how many rows moved? how long did it
-take? is the data consistent?* That's what a **metadata-driven lakehouse** gives you: a small **control +
-audit database** (`metadatadb`) that every load reports into, and a **dashboard** that turns those rows
-into observability and traceability — over a medallion that follows the exact bronze → silver → gold
-pattern you just built.
+loads across **many workspaces** — and needs to answer, at a glance: *did every load succeed? how many rows moved?
+how long did it take? is the data consistent?* That's what a **metadata-driven lakehouse** gives you, arranged as a
+**hub-and-spoke**: a central **hub** workspace (`HPB Metadata Framework`) holds the **control + audit database**
+(`metadatadb`) and a **dashboard**; every **spoke** workspace (yours, and every other participant's) reports each load
+into the hub. The hub **observes, monitors and audits** all the spokes from one place.
 
 You won't build the framework from scratch (that's a facilitator preflight — see
-`assets/PROVISIONING-RUNBOOK.md`). Instead you'll **connect your Lab 1 medallion to it** and watch your
-own transform runs surface in the governance dashboard.
+`assets/PROVISIONING-RUNBOOK.md`). Instead you'll **connect your Lab 1 medallion (a spoke) to the hub** and watch your
+own transform runs surface in the central governance dashboard alongside everyone else's.
 
 ### You'll do
 
-- Read the framework's **control** table from your Lab 1 notebook to see how loads are config-driven.
-- Add **one audit-hook cell** to your Lab 1 notebook so each run reports into `metadatadb`.
+- Read the hub's **control** table from your Lab 1 notebook to see how loads are config-driven.
+- Add **one audit-hook cell** to your Lab 1 notebook so each run reports its metrics into the hub's `metadatadb`.
 - Read the **audit** trail to see your own load on the record.
-- Open the **Lakehouse Ingestion Dashboard** and read the observability + traceability story for **your** load.
+- Open the **Lakehouse Ingestion Dashboard** in the hub and read the observability + traceability story — your load
+  appears next to the other spokes.
 
-> **Why from the notebook?** The framework workspace is shared with you **read-only**, so its `metadatadb`
+> **Why from the notebook?** The hub workspace is shared with you **read-only**, so its `metadatadb`
 > query editor is disabled for participants. Instead you'll read `metadatadb` straight from **your own**
 > Lab 1 notebook using a tiny helper — it runs with **your** identity, which has read access to the tables.
-> This is also closer to how a real pipeline talks to the control store.
+> This is also closer to how a real pipeline (a spoke) talks to the central control store.
 
-### Where this fits
+### Where this fits — hub-and-spoke
 
 ```mermaid
-flowchart LR
-  subgraph L1["Lab 1 · lh_resident360 ✓"]
-    B["bronze.h365_*"]
-    S["silver.fact_*"]
-    G["gold.resident_360"]
+flowchart TB
+  subgraph HUB["Hub · HPB Metadata Framework workspace"]
+    MDB["metadatadb<br/>mtd.ingest_control · mtd.ingest_audit"]
+    DASH["Lakehouse Ingestion Dashboard<br/>observe · monitor · audit every spoke"]
+    MDB --> DASH
   end
-  HOOK["Audit-hook cell"]
-  subgraph FW["HPB Metadata Framework"]
-    MDB["metadatadb<br/>mtd.ingest_control<br/>mtd.ingest_audit"]
-    DASH["Lakehouse Ingestion Dashboard"]
+  subgraph S1["Spoke · your workspace · lh_resident360"]
+    M1["bronze → silver → gold"] --> H1["audit-hook cell"]
   end
-  B --> HOOK; S --> HOOK; G --> HOOK
-  HOOK --> MDB --> DASH
+  subgraph S2["Spoke · another participant"]
+    M2["bronze → silver → gold"] --> H2["audit-hook cell"]
+  end
+  H1 -->|run metrics| MDB
+  H2 -->|run metrics| MDB
   classDef item fill:#cce5ff,stroke:#0066cc,stroke-width:2px,color:#003366;
-  class MDB,DASH,HOOK item;
+  class MDB,DASH item;
   classDef done fill:#eeeeee,stroke:#999999,color:#333333;
-  class B,S,G done;
+  class M1,M2,H1,H2 done;
 ```
 
-**Builds on:** the medallion from Lab 1. Everything here reports on tables you already created.
+**Builds on:** the medallion from Lab 1. Your workspace is one **spoke**; the central **hub** sees them all (you see
+your own rows filtered to your load).
 
 ### Files
 
@@ -144,12 +147,12 @@ Now make your transform **report** each run into the framework.
 
 ---
 
-### Task 4 — Open the observability dashboard
+### Task 4 — Open the hub's observability dashboard
 
-1. In the **`HPB Metadata Framework`** workspace, open the **Lakehouse Ingestion Dashboard**.
-2. Read the tiles: **rows / data ingested by layer**, **success vs. failure**, **load duration**, **runs over time**.
+1. In the central **`HPB Metadata Framework`** hub workspace, open the **Lakehouse Ingestion Dashboard**.
+2. Read the tiles: **rows / data ingested by layer**, **success vs. failure**, **load duration**, **runs over time** — the hub aggregates every spoke's loads here.
 3. Filter to **`gold.resident_360`** (or your run) — the dashboard now tells the operational story of the
-   medallion **you** built: what moved, whether it was consistent, and how long it took.
+   medallion **you** built (your spoke): what moved, whether it was consistent, and how long it took.
 
 ![Lakehouse Ingestion Dashboard — datasets ingested, success rate, rows written, and a per-layer audit grid showing your bronze/silver/gold loads](../docs/images/lab2/lab2-01-dashboard.png)
 

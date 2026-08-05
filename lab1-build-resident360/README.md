@@ -15,7 +15,7 @@ estate — into a single **Resident 360** view, and you watch how Spark builds i
 - A **zero-copy mirror** of the shared Databricks estate (`hpb_databricks_mirror`).
 - The full medallion in **one well-documented notebook**: ingest app files + a live API → Bronze, clean → Silver,
   join with the mirror → **`gold.resident_360`** — trying **Data Wrangler** and **Copilot agent mode** along the way.
-- A Direct Lake **semantic model** and a **Copilot-generated report**.
+- A Direct Lake **semantic model** (`sm_resident360`, over gold + silver) and a **Copilot-generated report**.
 - Hands-on **Spark UI, resource prioritisation and monitoring** while your jobs run.
 
 ### Where this fits
@@ -31,14 +31,16 @@ flowchart LR
     SLV["silver.fact_*"]
     GLD["gold.resident_360"]
   end
-  SM["Semantic model · sm_activity"]
+  SM["Semantic model · sm_resident360"]
   RPT["Copilot report"]
   DBX -->|mirror| MIR
   FILES --> BRZ
   API --> BRZ
   BRZ --> SLV --> GLD
   MIR --> GLD
-  GLD --> SM --> RPT
+  GLD --> SM
+  SLV --> SM
+  SM --> RPT
   style LH fill:#f7fbff,stroke:#0066cc,color:#003366
   classDef item fill:#cce5ff,stroke:#0066cc,stroke-width:2px,color:#003366;
   class SM,RPT item;
@@ -209,49 +211,51 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 
 ### Task 3 — Semantic model
 
-A **semantic model** is the layer reports and (later) the data agent read from. You'll compare it against an **ontology**
-in Lab 4 — so build it now on the two Databricks-mirror tables.
+A **semantic model** is the layer reports and (later, in Lab 4) data agents read from. Build it on your **gold + silver**
+tables so it and the Lab 4 ontology cover the **same data** — that makes the Lab 4 comparison a fair one.
 
 #### 3a · Create the model
 
-1. Open **`hpb_databricks_mirror`** → its **SQL analytics endpoint**. On the **Home** ribbon click **New semantic model**.
+1. Open **`lh_resident360`** → its **SQL analytics endpoint**. On the **Home** ribbon click **New semantic model**.
 
-   ![The mirror's SQL analytics endpoint with the New semantic model button on the ribbon.](../docs/images/lab1/lab1-11-mirror-tables.png)
+   ![The lh_resident360 SQL analytics endpoint with the New semantic model button on the ribbon.](../docs/images/lab1/lab1-3a-newsm-button.png)
 
 2. In the dialog:
-   - **Name** the model **`sm_activity`**.
+   - **Name** the model **`sm_resident360`**.
    - Leave **Direct Lake on SQL** selected.
-   - Under the **`gold`** folder, select **`daily_activity`** and **`dim_resident`** (leave the others unselected).
+   - Select **`gold.resident_360`** and the five silver facts — **`fact_event_attendance`**, **`fact_meal_log`**, **`fact_rewards`**, **`fact_programme_enrolment`**, **`fact_challenge`** (six tables in total).
    - Click **Confirm**.
 
-   > ⚠️ Make sure **both** `daily_activity` **and** `dim_resident` are checked before **Confirm** — it's easy to miss
-   > one. (If you end up with only one, you can add the other later on the Model view ribbon via **Edit tables**.)
+   > ⚠️ Tick the **checkbox glyph** on each table row — clicking the row *name* only highlights it. Confirm all six are checked before **Confirm**.
 
-   ![The New semantic model dialog: name sm_activity, Direct Lake on SQL, daily_activity and dim_resident both selected.](../docs/images/lab1/lab1-3a-new-sm-both-ticked.png)
+   ![The New semantic model dialog: name sm_resident360, Direct Lake on SQL, resident_360 and the five silver facts all checked.](../docs/images/lab1/lab1-3a-new-sm-tables.png)
 
-#### 3b · Add the relationship
+#### 3b · Add the star relationships
 
-3. Open **`sm_activity`** — from the workspace list, click the model. It opens in **Model view**, starting in
-   **Viewing** mode (read-only). Switch to **Editing**: click the **Viewing** button on the ribbon (top-left) → choose **Editing**.
+3. Open **`sm_resident360`** from the workspace list — it opens in **Model view**, starting in **Viewing** mode (read-only). Switch to **Editing**: click the **Viewing** button on the ribbon (top-left) → choose **Editing**.
 
-   > **Note:** the model may **not** open automatically after you click **Confirm** — if it doesn't, open **`sm_activity`**
-   > from the workspace list. The first switch to Editing shows a one-time *"Converting semantic model…"* message (~10 sec) — expected.
+   > **Note:** the model may **not** open automatically after **Confirm** — if it doesn't, open **`sm_resident360`** from the workspace list. The first switch to Editing shows a one-time *"Converting semantic model…"* message (~10 sec) — expected.
 
-   ![Switching sm_activity from Viewing to Editing: the Viewing/Editing dropdown open on the ribbon, over the daily_activity and dim_resident tables.](../docs/images/lab1/lab1-3b-editing-switch.png)
+   ![Switching sm_resident360 from Viewing to Editing: the Viewing/Editing dropdown open on the ribbon, over the six tables.](../docs/images/lab1/lab1-3b-editing-switch.png)
 
-4. On the ribbon click **Manage relationships → + New relationship** and set:
-   - **From table:** `daily_activity`, **column** `resident_id`
-   - **To table:** `dim_resident`, **column** `resident_id`
-   - **Cardinality:** **Many to one (\*:1)** · **Cross-filter direction:** **Single** · **Make active:** on
+4. On the ribbon click **Manage relationships → + New relationship** and create **one relationship per fact**:
+   - **From table:** the fact table, **column** `resident_id`
+   - **To table:** `resident_360`, **column** `resident_id`
+   - **Cardinality:** **Many to one (\*:1)** · **Cross-filter direction:** **Single** · **Make active:** on → **Save**.
 
-   Click **Save**. *(Direct Lake infers cardinality from row counts and shows a banner saying so — here it correctly
-   detects Many-to-one / Single.)*
+   Repeat for all five facts (`fact_event_attendance`, `fact_meal_log`, `fact_rewards`, `fact_programme_enrolment`, `fact_challenge`).
+
+   > **Direct Lake note:** the editor always pre-fills *Many to one / Single* and can't preview data to validate — that's expected, and the defaults are correct here.
 
    ![The New relationship dialog with both resident_id columns selected, Cardinality Many to one, Cross-filter Single, Make active on.](../docs/images/lab1/lab1-3b-new-relationship.png)
 
-5. Close the dialog — the two tables now show the relationship line on the canvas.
+5. When done, **Manage relationships** lists all five (each fact → `resident_360`).
 
-   ![The sm_activity model view with the *→1 relationship line between daily_activity and dim_resident.](../docs/images/lab1/lab1-3b-relationship-line.png)
+   ![Manage relationships listing five Many-to-one relationships from each fact table to resident_360.](../docs/images/lab1/lab1-3b-relationships-list.png)
+
+6. Close the dialog — `resident_360` sits at the centre with the five facts pointing to it (a star schema).
+
+   ![The sm_resident360 model view: resident_360 in the centre with *→1 relationship lines from the five fact tables.](../docs/images/lab1/lab1-3b-relationship-line.png)
 
 ---
 
@@ -259,25 +263,25 @@ in Lab 4 — so build it now on the two Databricks-mirror tables.
 
 Instead of hand-placing visuals, let **Copilot** suggest and build the report pages for you.
 
-1. In the workspace list, hover the **`sm_activity`** row → **⋯ (More options)** → **Create report**. This opens the
-   report editor bound to `sm_activity` (both tables appear in the **Data** pane).
+1. In the workspace list, hover the **`sm_resident360`** row → **⋯ (More options)** → **Create report**. This opens the
+   report editor bound to `sm_resident360` (its tables appear in the **Data** pane).
    > *Tip:* the model view also has a **New report** button, but the **⋯ → Create report** path from the list is the
    > most reliable.
 
-   ![The sm_activity ⋯ menu with Create report.](../docs/images/lab1/lab1-25-create-report-menu.png)
+   ![The sm_resident360 ⋯ menu with Create report.](../docs/images/lab1/lab1-25-create-report-menu.png)
 
 2. In the report editor, click **Copilot** on the toolbar to open the panel, then choose
-   **Suggest content for a new report page**. Copilot proposes an outline of pages (e.g. *Resident activity overview*,
-   *Steps and movement analysis*, *Sleep quality and recovery*, *Health metrics by demographic profile*).
+   **Suggest content for a new report page**. Copilot proposes an outline of pages built from the model's tables
+   (e.g. activity, events, programmes, rewards by region or demographic).
 
    ![The Copilot panel in the report editor with "Suggest content for a new report page".](../docs/images/lab1/lab1-4-copilot-panel.png)
 
-   ![Copilot's suggested report-page outline built from sm_activity.](../docs/images/lab1/lab1-4-copilot-suggested-pages.png)
+   ![Copilot's suggested report-page outline built from sm_resident360.](../docs/images/lab1/lab1-4-copilot-suggested-pages.png)
 
 3. Click **Create** under a page you like — Copilot builds the page and lays out the visuals for you. Repeat for any
-   other pages, then press **Ctrl+S** and **Save** the report as **`rpt_activity`**.
+   other pages, then press **Ctrl+S** and **Save** the report as **`rpt_resident360`**.
 
-   ![The Resident Activity Overview page Copilot built — cards and charts over sm_activity.](../docs/images/lab1/lab1-4-copilot-report-built.png)
+   ![The report page Copilot built — cards and charts over sm_resident360.](../docs/images/lab1/lab1-4-copilot-report-built.png)
 
 > **Done when you see:** a report Copilot built from your semantic model — no manual visual placement. *(Copilot drafts
 > may briefly show an axis warning on a visual until the fields settle — that's normal.)*
@@ -287,8 +291,8 @@ Instead of hand-placing visuals, let **Copilot** suggest and build the report pa
 ### ✅ Checkpoint
 - [ ] **Task 1** — `lh_resident360` Lakehouse + `hpb_databricks_mirror` created; zero-copy count on the mirror's SQL analytics endpoint = **1500**
 - [ ] **Task 2** — one notebook built `bronze.*`, `silver.fact_*`, and `gold.resident_360` (1,500 rows, ~12% disengaged); tried **Data Wrangler**, the **Spark UI / Monitor**, and **Copilot in the notebook**
-- [ ] **Task 3** — `sm_activity` semantic model (Direct Lake) with the **`daily_activity` → `dim_resident` (Many-to-one)** relationship
-- [ ] **Task 4** — a **Copilot-built** report saved as **`rpt_activity`**
+- [ ] **Task 3** — `sm_resident360` semantic model (Direct Lake) with **five Many-to-one** relationships (each `silver.fact_*` → `gold.resident_360`)
+- [ ] **Task 4** — a **Copilot-built** report saved as **`rpt_resident360`**
 
 ---
 
