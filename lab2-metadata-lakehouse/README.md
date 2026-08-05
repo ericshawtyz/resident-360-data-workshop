@@ -158,17 +158,26 @@ Now make your transform **report** each run into the framework.
 
 > **Done when you see:** your `gold.resident_360` load reflected in the dashboard tiles.
 
+> **Tiles blank or showing an error?** The dashboard reads `metadatadb` through its semantic model, which needs its
+> **data-source credentials bound once** by the facilitator (Fabric SQL is Entra-auth only). If every visual shows
+> *"can't connect to the data source"* / *"capacity or license issue,"* tell the facilitator — they re-bind the model
+> credential (see `assets/PROVISIONING-RUNBOOK.md`). Your audit rows are still safely in `metadatadb` (you just read
+> them in Task 3), so the tiles fill in as soon as the connection is fixed.
+
 ---
 
 ### Task 5 — Trace it end-to-end
 
-1. In the workspace, switch to **Lineage view** (top-right toggle, next to the search box).
-2. Follow the chain: **dashboard → semantic model → `metadatadb`** and, in your own workspace,
-   **`gold.resident_360` → silver → bronze → the mirrored Databricks tables**.
-3. This is **traceability**: from a governance tile back to the raw source, and — via the audit table —
+1. In **your own** workspace (`HPB Workshop - <Your Name>`), switch to **Lineage view** (top-right toggle, next to
+   the search box).
+2. Follow **your spoke's** chain end-to-end: **`hpb_databricks_mirror` ← the Azure Databricks source**, and
+   **`lh_resident360` → its SQL endpoint → `sm_resident360` → `rpt_resident360`** — with the `resident360_medallion`
+   notebook feeding the Lakehouse. *(The central hub has its own governance lineage — dashboard → semantic model →
+   `metadatadb` — if you want to peek there too.)*
+3. This is **traceability**: from the report back to the raw Databricks source, and — via the audit table —
    *when* each hop last ran and whether it succeeded.
 
-![Lineage view of the HPB Metadata Framework workspace — the Ingestion Dashboard report and semantic model, metadatadb, and the bronze/silver/gold layer lakehouses](../docs/images/lab2/lab2-04-lineage.png)
+![Lineage view of your own workspace — the mirrored Databricks catalog, lh_resident360 Lakehouse and SQL endpoint, sm_resident360 semantic model, rpt_resident360 report, and the medallion notebook.](../docs/images/lab2/lab2-04-lineage.png)
 
 > **Done when you see:** the lineage graph linking the dashboard to `metadatadb`, and your medallion back to the mirror.
 
