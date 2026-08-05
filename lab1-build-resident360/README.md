@@ -134,7 +134,7 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 
 1. Open **`lh_resident360`**. Hover the **Files** node → **⋯ (More options)** → **New subfolder** → name it **`landing`**.
 
-   ![The ⋯ menu on the Files node with New subfolder.](../docs/images/lab2/lab2-02-files-menu.png)
+   ![The ⋯ menu on the Files node with New subfolder.](../docs/images/lab1/lab1-2a-files-menu.png)
 
 2. Hover **`landing`** → **⋯** → **Upload → Upload files** → select **all seven files** from the kit's `data/` folder →
    **Upload**. Watch each file reach a green **Completed** check, then confirm the folder shows *"Files 7"*.
@@ -148,12 +148,12 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 3. Workspace toolbar → **Import → Notebook → From this computer** → select
    **`resident360_medallion.ipynb`** from the kit's `notebooks/` folder.
 
-   ![Import → Notebook → From this computer.](../docs/images/lab2/lab2-09-import-notebook-menu.png)
+   ![Import → Notebook → From this computer.](../docs/images/lab1/lab1-2b-import-notebook-menu.png)
 
 4. Open the notebook → Explorer **Add data items → From OneLake catalog** → check your **`lh_resident360`**
    **Lakehouse** (the one whose Location is your workspace — **not** its SQL analytics endpoint) → **Add**.
 
-   ![The OneLake catalog picker; select the Lakehouse, not the SQL endpoint.](../docs/images/lab2/lab2-13-onelake-picker.png)
+   ![The OneLake catalog picker; select the Lakehouse, not the SQL endpoint.](../docs/images/lab1/lab1-2b-onelake-picker.png)
 
    > ⚠️ The picker lists `lh_resident360` more than once. Select the **Lakehouse** — it's the one that can read
    > `Files/landing/` and write tables. The SQL endpoint can't write, so the run would fail.
@@ -172,10 +172,11 @@ This is the heart of the lab: land the raw files, then run **one notebook** that
 
 6. **Data Wrangler (Section 1).** After Bronze lands, explore Fabric's no-code data cleaning:
    1. In the Explorer, expand **`lh_resident360` → Tables → `bronze`** and hover **`h365_meal_logs`** → **⋯** →
-      **Open in Data Wrangler** (or ribbon **Home → Data Wrangler → bronze.h365_meal_logs**).
+      **Open in Data Wrangler**. *(Alternatively, the ribbon **Home → Data Wrangler** lists the notebook's in-memory
+      **DataFrames** by variable name — pick **`meals`**, which holds the same `bronze.h365_meal_logs` data.)*
    2. In the left **Operations** panel, choose **Find and replace → Drop missing values**, select the **`calories`**
       column, and **Apply** — watch the row count drop and the change appear in the **Cleaning steps** list.
-   3. Try a second operation, e.g. **Transformations → Change column type** on `calories` → **Decimal**.
+   3. Try a second operation, e.g. **Schema → Change column type** on `calories` → **Decimal**.
    4. Click **Add code to notebook** (top right) — Data Wrangler adds the equivalent PySpark into a new cell so you
       can see how the selections became code. *(You don't need to run it — the notebook's Silver step performs the
       authoritative cleaning; this step is only to experience the tool.)*
