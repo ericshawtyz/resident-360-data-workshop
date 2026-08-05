@@ -31,7 +31,7 @@ Foundation only — you start building the pipeline in Lab 1.
 1. Open **https://app.fabric.microsoft.com** and sign in with your workshop credentials.
 2. Complete MFA / password reset if prompted.
 
-   ![The Microsoft Fabric home after signing in, with the HPB Workshop workspace under Recommended.](../docs/images/lab0/lab0-1-fabric-home.png)
+   ![The Microsoft Fabric home after signing in, with the HPB Workshop workspace under Quick access / Recent workspaces.](../docs/images/lab0/lab0-1-fabric-home.png)
 
 3. Left nav → **Workspaces** → open your assigned workspace **`HPB Workshop - <Your Name>`** and work there.
 
@@ -41,7 +41,11 @@ Foundation only — you start building the pipeline in Lab 1.
 > assigned workshop workspace, which sits on the Fabric capacity.
 
 ### Task 2 — Sign in to Azure Databricks
-1. Open the shared Databricks URL and sign in with **Continue with Microsoft Entra ID** (same workshop account).
+1. Open the shared Databricks URL (your facilitator provides it) and sign in with **Continue with Microsoft Entra ID**
+   (same workshop account).
+
+   ![The Azure Databricks sign-in page with the Continue with Microsoft Entra ID button.](../docs/images/lab0/lab0-2-databricks-signin.png)
+
 2. Open **Catalog** and confirm the shared estate catalog **`hpb_databricks`** is present (the facilitator
    seeded it once for the room). Expand its **`gold`** schema to see the seeded tables. You'll mirror it in Lab 1 —
    you don't run anything here.
