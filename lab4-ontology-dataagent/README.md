@@ -139,13 +139,13 @@ Both agents now read the **same six tables** — the SM agent through the `sm_re
 
    ![Semantic-model agent answers the multi-hop question from the star schema — a bar chart of residents by region](../docs/images/lab4/lab4-04-sm-answer.png)
 
-3. Read the **Ontology agent's** answer. It **traverses named relationships** — Resident —enrolledIn→ Programme and Resident —attended→ Event —heldIn→ Region — and returns the **same numbers**.
+3. Read the **Ontology agent's** answer. It **traverses named relationships** — Resident —enrolledIn→ Programme and Resident —attended→ Event —heldIn→ Region. The point here is the *explicit, named path* (no guessing which `region` column to join) — **not** a guarantee of a matching number. The ontology item is in **preview** and its data agent plans queries non-deterministically, so on multi-hop aggregates it may not reproduce the semantic model's figures (in testing it returned a flat, incorrect count across regions). **Treat the semantic model's answer as the source of truth and validate the ontology agent against it.**
 
-   ![Ontology agent traverses enrolledIn / attended / heldIn and returns the same result](../docs/images/lab4/lab4-03-ontology-answer.png)
+   ![Ontology agent traverses enrolledIn / attended / heldIn to answer the multi-hop question](../docs/images/lab4/lab4-03-ontology-answer.png)
 
 4. Try 2–3 more questions from the bank on both agents and **generate a visual** for each.
 
-> **What this shows.** On a clean star schema with a capable data agent, **both approaches answer correctly** — the semantic model is not "beaten" on Q&A once it has the same tables. The ontology's value is **architectural**, not a different number:
+> **What this shows.** On a clean star schema, the **semantic model answers the multi-hop question correctly** — it is not "beaten" on Q&A once it has the same tables. The **ontology's value is architectural**, not a different (or guaranteed-identical) number:
 > - **Named, typed relationships** — `livesIn` (a resident's home region) and `heldIn` (an event's region) are *distinct* edges, so multi-hop questions are unambiguous instead of relying on the agent to guess which `region` column to join.
 > - **Graph-native traversal** — deep or variable-length paths across entities are first-class, not hand-built joins.
 > - **A governed, reusable semantic layer** — one ontology can back many agents and apps.
@@ -157,6 +157,7 @@ Both agents now read the **same six tables** — the SM agent through the `sm_re
 > ⚠️ **Facilitator note — choose questions that resolve.** Two easy traps:
 > - **Contradictory filters.** The `is_disengaged` flag means *low steps **AND no events attended** AND a dropped programme*, so "**disengaged** residents who **attended** events" is an empty set — an agent correctly answers *"no data."* Ask the traversal **without** the disengaged filter.
 > - **Ambiguous "region".** `region` appears on several tables (a resident's home region vs. an event's region). Phrase the question so the intended hop is clear (e.g. *"the region where those events were held"*) — the ontology's named `heldIn`/`livesIn` edges make this explicit; the flat model relies on the agent picking the right column.
+> - **The ontology agent's numbers aren't guaranteed.** The ontology item is in preview and its data agent generates queries non-deterministically; on the headline multi-hop Q1 it may return a wrong or uniform count. **Don't promise "identical results" live** — show the SM agent's correct chart as the source of truth and use the ontology answer to illustrate *named-relationship traversal*, not to match figures.
 
 ---
 

@@ -15,8 +15,10 @@ programme, event or challenge.
 ## Question bank
 
 ### Multi-hop relationship questions (Resident · Programme · Event · Region)
-These span several domains. **Both** agents can answer them once the semantic model has the same tables — the point
-is to compare *how* each does it (star joins vs. named-relationship traversal).
+These span several domains. **Both** agents attempt them once the semantic model has the same tables — the point
+is to compare *how* each does it (star joins vs. named-relationship traversal). The **semantic-model agent** returns
+the correct per-group figures; the **ontology agent** (preview) illustrates the traversal but may not reproduce those
+figures exactly, so validate its numbers against the semantic model.
 1. **Among residents who dropped a programme, how many attended at least one event, broken down by the region where those events were held? Return a chart by region.**  *(the headline comparison — spans enrolledIn + attended + heldIn)*
 2. How many residents attended events in each region? Return a chart by region.
 3. On average, how many events does a resident attend, broken down by their home region?
@@ -42,14 +44,16 @@ is to compare *how* each does it (star joins vs. named-relationship traversal).
 
 ## Compare the two agents (the point of Task 5)
 Ask **Q1** to **both** the **`Resident360 SM Agent`** (on `sm_resident360`) and the **`Resident360 Ontology Agent`**
-(on `resident_ontology`). Because both read the same six tables, **both return the same chart** — validating the
-result. The difference is *architectural*: the SM agent joins the star on `resident_id`; the ontology agent traverses
-named relationships (`enrolledIn`, `attended`, `heldIn`). Discuss when each fits:
+(on `resident_ontology`). Both read the same six tables, so the comparison is about *how* each answers — not a promise
+of identical numbers. The **SM agent** returns the correct per-region breakdown (use it as the source of truth); the
+**ontology agent** (preview) demonstrates named-relationship traversal but may return different or incorrect figures on
+this multi-hop aggregate. The difference is *architectural*: the SM agent joins the star on `resident_id`; the ontology
+agent traverses named relationships (`enrolledIn`, `attended`, `heldIn`). Discuss when each fits:
 - **Semantic model** — classic BI metrics, dashboards, well-understood star schemas.
 - **Ontology** — named/typed relationships, deep or variable-length multi-hop traversal, and a governed layer reused
   across many agents and apps.
 
 ## Demo flow
 1. Q4 → bar chart of disengaged share by region.
-2. Q1 → ask both agents; show identical results, then contrast star joins vs. graph traversal.
+2. Q1 → ask both agents; show the SM agent's correct chart as the source of truth, then contrast star joins vs. graph traversal (don't promise identical numbers — the ontology preview agent may differ).
 3. Q12 → matrix (challenge × region). Pin the visuals.
